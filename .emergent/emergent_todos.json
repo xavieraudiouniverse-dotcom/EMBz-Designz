@@ -1,0 +1,34 @@
+[
+  {
+    "content": "Phase 1: Core Merchize POC (auth + catalog fetch) — PROVEN via curl",
+    "status": "completed"
+  },
+  {
+    "content": "Get design guidelines from design_agent (EMBZ brand)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Backend — MerchizeClient, catalog sync to Mongo, storefront/product/category APIs",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Backend — admin import/store-products, shipping quote, checkout (real Merchize order), order detail/tracking, admin orders + push/cancel/hold/resume",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: Frontend — Home, Shop, Product detail, Cart drawer, Checkout, Order confirmation, Tracking, Admin (orders/import/products)",
+    "status": "completed"
+  },
+  {
+    "content": "Phase 2: End to End Testing using Testing Agent (backend + frontend) — 100% pass",
+    "status": "completed"
+  },
+  {
+    "content": "Fix low-priority console warnings (RadioGroup, DialogDescription)",
+    "status": "completed"
+  },
+  {
+    "content": "Clean up demo products & test orders — store empty and ready",
+    "status": "completed"
+  }
+]
