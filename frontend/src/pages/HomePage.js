@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { fetchProducts } from "@/lib/api";
 import { ProductCard } from "@/components/ProductCard";
 import { SectionHeader } from "@/components/SectionHeader";
+import { MovingBanners } from "@/components/MovingBanners";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight, Heart, Zap, Truck, Sparkles, Cpu } from "lucide-react";
@@ -32,7 +33,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden neon-night vignette">
         <div className="absolute inset-0 tech-grid opacity-70" />
         <div className="city-lights" />
-        <div className="rain" />
+        <MovingBanners />
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-72 w-[36rem] rounded-full bg-neon/10 blur-[120px]" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36 text-center">
           <motion.div
@@ -147,7 +148,7 @@ export default function HomePage() {
       <section className="relative mt-12 overflow-hidden border-y border-border vignette">
         <div className="absolute inset-0 neon-night" />
         <div className="absolute inset-0 tech-grid opacity-40" />
-        <div className="rain" />
+        <MovingBanners />
         <div className="city-lights" />
         <div className="absolute inset-0 noise" />
         <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-rose/12 blur-[110px]" />

@@ -108,28 +108,26 @@ h1, h2, h3, h4, .font-serif, .font-display {
         -webkit-mask-image: radial-gradient(120% 120% at 50% 0%, #000 40%, transparent 75%);
         mask-image: radial-gradient(120% 120% at 50% 0%, #000 40%, transparent 75%);
     }
-    /* Falling rain */
-    .rain {
+    /* Moving banners that glide across the screen */
+    .moving-banners {
         position: absolute;
         inset: 0;
         overflow: hidden;
         pointer-events: none;
     }
-    .rain::before, .rain::after {
-        content: '';
+    .banner-row {
         position: absolute;
-        inset: -60% -20% -20% -20%;
-        background-image:
-            repeating-linear-gradient(102deg, transparent 0 22px, rgba(180, 220, 255, 0.10) 22px 23px),
-            repeating-linear-gradient(102deg, transparent 0 40px, rgba(180, 220, 255, 0.06) 40px 41px);
-        background-size: 100px 120px, 160px 180px;
-        animation: rainfall 0.75s linear infinite;
-        opacity: 0.55;
+        left: -15%;
+        right: -15%;
+        white-space: nowrap;
     }
-    .rain::after {
-        animation-duration: 1.3s;
-        opacity: 0.3;
-        background-image: repeating-linear-gradient(102deg, transparent 0 60px, rgba(180, 220, 255, 0.05) 60px 61px);
+    .banner-track {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+    }
+    .banner-item {
+        padding-right: 3.5rem;
     }
     /* Distant city lights bokeh */
     .city-lights {
@@ -190,14 +188,19 @@ h1, h2, h3, h4, .font-serif, .font-display {
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-@keyframes rainfall {
-    0% { transform: translateY(-20px); }
-    100% { transform: translateY(120px); }
-}
-
 @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-33.333%); }
+}
+
+@keyframes banner-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+@keyframes banner-scroll-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
 }
 
 @layer base {
