@@ -116,7 +116,7 @@ export default function ProductPage() {
           {images.length > 1 && (
             <div className="mt-3 flex gap-3">
               {images.map((img, i) => (
-                <button key={i} onClick={() => setActiveImg(i)} className={`h-20 w-16 overflow-hidden rounded-lg border ${i === activeImg ? "border-mustard" : "border-border"}`}>
+                <button key={i} onClick={() => setActiveImg(i)} className={`h-20 w-16 overflow-hidden rounded-lg border ${i === activeImg ? "border-neon" : "border-border"}`}>
                   <SmartImage src={img} alt="thumb" className="h-full w-full object-cover" />
                 </button>
               ))}
@@ -179,7 +179,7 @@ export default function ProductPage() {
 
           <Button
             size="lg"
-            className="mt-5 w-full rounded-xl"
+            className="mt-5 w-full rounded-md bg-neon text-[#07080B] hover:bg-neon/90 shadow-[0_0_22px_rgba(0,229,255,0.28)] font-mono uppercase tracking-widest"
             onClick={handleAdd}
             disabled={!matchedVariant}
             data-testid="pdp-add-to-cart-button"
@@ -189,14 +189,14 @@ export default function ProductPage() {
 
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="flex items-start gap-2 rounded-xl border border-border bg-card p-3">
-              <Clock className="h-4 w-4 mt-0.5 text-mustard" />
+              <Clock className="h-4 w-4 mt-0.5 text-neon" />
               <div className="text-sm">
                 <div className="font-medium">Production</div>
                 <div className="text-muted-foreground">{pt.min || 1}–{pt.max || 3} business days</div>
               </div>
             </div>
             <div className="flex items-start gap-2 rounded-xl border border-border bg-card p-3">
-              <Truck className="h-4 w-4 mt-0.5 text-mustard" />
+              <Truck className="h-4 w-4 mt-0.5 text-neon" />
               <div className="text-sm">
                 <div className="font-medium">Shipping</div>
                 <div className="text-muted-foreground">Cheapest &amp; fastest at checkout</div>

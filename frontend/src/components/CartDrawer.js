@@ -81,7 +81,7 @@ export const CartDrawer = () => {
                 <Price value={subtotal} className="text-lg" testId="cart-subtotal" />
               </div>
               <p className="text-xs text-muted-foreground mb-3">Shipping calculated at checkout.</p>
-              <Button className="w-full rounded-xl" onClick={goCheckout} data-testid="cart-checkout-button">
+              <Button className="w-full rounded-md bg-neon text-[#07080B] hover:bg-neon/90 shadow-[0_0_22px_rgba(0,229,255,0.28)] font-mono uppercase tracking-widest" onClick={goCheckout} data-testid="cart-checkout-button">
                 Checkout
               </Button>
             </SheetFooter>

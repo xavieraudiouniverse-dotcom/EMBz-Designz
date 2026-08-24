@@ -33,7 +33,7 @@ export const AdminLayout = ({ children }) => {
             <Link
               key={item.to}
               to={item.to}
-              className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors ${isActive(item) ? "border-mustard text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+              className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors ${isActive(item) ? "border-neon text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
               data-testid={`admin-nav-${item.label.toLowerCase().replace(/[^a-z]/g, '-')}`}
             >
               <item.icon className="h-4 w-4" /> {item.label}

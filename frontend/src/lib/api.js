@@ -16,6 +16,10 @@ export const getShippingQuote = (payload) =>
   client.post("/shipping/quote", payload).then((r) => r.data);
 export const submitCheckout = (payload) =>
   client.post("/checkout", payload).then((r) => r.data);
+export const startPayment = (payload) =>
+  client.post("/payments/checkout", payload).then((r) => r.data);
+export const paymentStatus = (sessionId) =>
+  client.get(`/payments/status/${sessionId}`).then((r) => r.data);
 export const fetchOrder = (externalNumber) =>
   client.get(`/orders/${externalNumber}`).then((r) => r.data);
 export const fetchTracking = (externalNumber) =>

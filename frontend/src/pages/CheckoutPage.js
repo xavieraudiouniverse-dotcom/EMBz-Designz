@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { getShippingQuote, submitCheckout } from "@/lib/api";
+import { getShippingQuote, startPayment } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,16 +99,19 @@ export default function CheckoutPage() {
           quantity: i.quantity,
         })),
         shipping_method: shippingMethod,
-        shipping_cost: shippingCost,
         notes,
+        origin_url: window.location.origin,
       };
-      const res = await submitCheckout(payload);
-      clearCart();
-      navigate(`/order/${res.external_number}`, { state: { order: res } });
+      const res = await startPayment(payload);
+      if (res.checkout_url) {
+        // hand off to Stripe hosted checkout; order is created only after payment
+        window.location.href = res.checkout_url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (e) {
-      setError(e?.response?.data?.detail || "Something went wrong placing your order.");
+      setError(e?.response?.data?.detail || "Could not start secure checkout. Please try again.");
       toast.error("Checkout failed");
-    } finally {
       setPlacing(false);
     }
   };
@@ -172,11 +175,11 @@ export default function CheckoutPage() {
                     data-testid={`shipping-option-${opt.id}`}
                   >
                     <div className="flex items-center gap-3">
-                      {opt.id === "express" ? <Zap className="h-5 w-5 text-mustard" /> : <Truck className="h-5 w-5 text-mustard" />}
+                      {opt.id === "express" ? <Zap className="h-5 w-5 text-neon" /> : <Truck className="h-5 w-5 text-neon" />}
                       <div>
                         <div className="font-medium flex items-center gap-2">
                           {opt.name}
-                          <span className="text-[10px] uppercase tracking-wide rounded-full bg-mustard/20 text-foreground px-2 py-0.5">{opt.tag}</span>
+                          <span className="text-[10px] uppercase tracking-wide rounded-full bg-neon/20 text-foreground px-2 py-0.5">{opt.tag}</span>
                         </div>
                         <div className="text-sm text-muted-foreground">{opt.eta_label}</div>
                       </div>
@@ -223,11 +226,11 @@ export default function CheckoutPage() {
 
             {error && <p className="mt-3 text-sm text-destructive" role="alert" data-testid="checkout-error-message">{String(error)}</p>}
 
-            <Button className="mt-5 w-full rounded-xl" size="lg" onClick={placeOrder} disabled={placing || quoting} data-testid="checkout-place-order-button">
-              {placing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Placing order…</> : <>Place order · <Price value={total} className="ml-1" /></>}
+            <Button className="mt-5 w-full rounded-md bg-neon text-[#07080B] hover:bg-neon/90 shadow-[0_0_22px_rgba(0,229,255,0.28)] font-mono uppercase tracking-widest" size="lg" onClick={placeOrder} disabled={placing || quoting} data-testid="checkout-place-order-button">
+              {placing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Redirecting to payment…</> : <>Pay &amp; place order · <Price value={total} className="ml-1" /></>}
             </Button>
-            <p className="mt-3 text-xs text-muted-foreground text-center">
-              Your order is created directly in Merchize for fulfillment.
+            <p className="mt-3 text-xs text-muted-foreground text-center font-sans">
+              Secure card payment via Stripe. Your Merchize order is created only after payment succeeds.
             </p>
           </div>
         </div>

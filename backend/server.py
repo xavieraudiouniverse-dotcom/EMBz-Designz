@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query, BackgroundTasks
+from fastapi import FastAPI, APIRouter, HTTPException, Query, BackgroundTasks, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -30,6 +30,13 @@ from merchize import (
 mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
+
+# ---- Stripe (Flow A claimable sandbox) ----
+import stripe
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY") or "sk_test_emergent"
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+STRIPE_ACCOUNT_COUNTRY = os.environ.get("STRIPE_ACCOUNT_COUNTRY", "AU")
+_tax_settings_ready = {"done": False}
 
 app = FastAPI(title="EMBZ Designs Storefront API")
 api_router = APIRouter(prefix="/api")
@@ -430,16 +437,13 @@ def _max_production_time(items, product_map) -> int:
     return mx
 
 
-@api_router.post("/shipping/quote")
-async def shipping_quote(req: ShippingQuoteRequest):
-    if not req.items:
-        raise HTTPException(status_code=400, detail="No items provided")
-    zone = country_to_zone(req.country)
-    product_map = await _load_store_map([i.store_product_id for i in req.items])
-    base = _compute_base_shipping(req.items, zone, product_map)
+async def _shipping_options(items, country):
+    zone = country_to_zone(country)
+    product_map = await _load_store_map([i.store_product_id for i in items])
+    base = _compute_base_shipping(items, zone, product_map)
     if base is None:
         base = 9.99
-    prod = _max_production_time(req.items, product_map)
+    prod = _max_production_time(items, product_map)
     transit = TRANSIT_ESTIMATES.get(zone, TRANSIT_ESTIMATES["ROW"])
     std_min, std_max = prod + transit["standard"][0], prod + transit["standard"][1]
     exp_min, exp_max = prod + transit["express"][0], prod + transit["express"][1]
@@ -453,25 +457,26 @@ async def shipping_quote(req: ShippingQuoteRequest):
          "eta_min_days": exp_min, "eta_max_days": exp_max,
          "eta_label": f"{exp_min}\u2013{exp_max} business days", "tag": "fastest"},
     ]
-    return {"zone": zone, "country": req.country.upper(), "production_time_days": prod,
+    return {"zone": zone, "country": country.upper(), "production_time_days": prod,
             "cheapest": "standard", "fastest": "express", "options": options}
 
 
-# ---------------------------------------------------------------------------
-# Checkout -> create real Merchize external order (with printable design)
-# ---------------------------------------------------------------------------
-@api_router.post("/checkout")
-async def checkout(req: CheckoutRequest):
+@api_router.post("/shipping/quote")
+async def shipping_quote(req: ShippingQuoteRequest):
     if not req.items:
-        raise HTTPException(status_code=400, detail="Cart is empty")
+        raise HTTPException(status_code=400, detail="No items provided")
+    return await _shipping_options(req.items, req.country)
 
-    product_map = await _load_store_map([i.store_product_id for i in req.items])
 
-    external_number = "EMBZ-" + uuid.uuid4().hex[:10].upper()
-    si = req.shipping_info
-
+# ---------------------------------------------------------------------------
+# Shared cart resolution + Merchize order creation
+# ---------------------------------------------------------------------------
+async def _resolve_cart(items):
+    """Return (merchize_items, local_items, subtotal) computed from Mongo
+    (authoritative prices - never trust the client)."""
+    product_map = await _load_store_map([i.store_product_id for i in items])
     merchize_items, local_items, subtotal = [], [], 0.0
-    for it in req.items:
+    for it in items:
         product = product_map.get(it.store_product_id)
         if not product:
             raise HTTPException(status_code=400, detail=f"Product {it.store_product_id} not found")
@@ -505,25 +510,23 @@ async def checkout(req: CheckoutRequest):
             "attributes": {k: (v.get("text") if isinstance(v, dict) else v)
                            for k, v in (variant.get("attributes") or {}).items()},
         })
+    return merchize_items, local_items, round(subtotal, 2)
 
-    subtotal = round(subtotal, 2)
-    total = round(subtotal + (req.shipping_cost or 0.0), 2)
 
+async def _create_merchize_order(shipping_info: dict, merchize_items, local_items,
+                                 subtotal, shipping_method, shipping_cost, notes,
+                                 external_number=None, payment=None):
+    external_number = external_number or ("EMBZ-" + uuid.uuid4().hex[:10].upper())
+    total = round(subtotal + (shipping_cost or 0.0), 2)
     payload = {
         "order_id": external_number,
         "identifier": "embz",
-        "shipping_info": {
-            "full_name": si.full_name, "address_1": si.address_1,
-            "address_2": si.address_2 or "", "city": si.city, "state": si.state or "",
-            "postcode": si.postcode, "country": si.country.upper(),
-            "email": si.email, "phone": si.phone or "",
-        },
+        "shipping_info": shipping_info,
         "items": merchize_items,
-        "shipping_method": req.shipping_method,
+        "shipping_method": shipping_method,
         "tags": ["embz-storefront"],
-        "note": req.notes or "",
+        "note": notes or "",
     }
-
     merchize_ok, merchize_message, merchize_response = False, None, None
     try:
         resp = await merchize.create_order(payload)
@@ -535,7 +538,7 @@ async def checkout(req: CheckoutRequest):
         logger.error(merchize_message)
     except Exception as e:  # noqa
         merchize_message = str(e)
-        logger.exception("Checkout failed")
+        logger.exception("Order creation failed")
 
     order_doc = {
         "external_number": external_number,
@@ -543,21 +546,240 @@ async def checkout(req: CheckoutRequest):
         "status": "submitted" if merchize_ok else "pending_review",
         "merchize_synced": merchize_ok,
         "merchize_message": merchize_message,
-        "shipping_info": payload["shipping_info"],
+        "payment": payment or {"method": "none", "status": "unpaid"},
+        "shipping_info": shipping_info,
         "items": local_items,
-        "shipping_method": req.shipping_method,
-        "shipping_cost": req.shipping_cost or 0.0,
-        "subtotal": subtotal, "total": total, "notes": req.notes or "",
+        "shipping_method": shipping_method,
+        "shipping_cost": shipping_cost or 0.0,
+        "subtotal": subtotal, "total": total, "notes": notes or "",
         "created_at": datetime.now(timezone.utc),
         "updated_at": datetime.now(timezone.utc),
         "merchize_response": merchize_response,
     }
     await db.orders.insert_one(order_doc)
-
     return {"success": True, "external_number": external_number,
             "merchize_synced": merchize_ok, "merchize_message": merchize_message,
-            "subtotal": subtotal, "shipping_cost": req.shipping_cost or 0.0,
+            "subtotal": subtotal, "shipping_cost": shipping_cost or 0.0,
             "total": total, "status": order_doc["status"]}
+
+
+# ---------------------------------------------------------------------------
+# Direct checkout (no payment) - kept for internal/testing use
+# ---------------------------------------------------------------------------
+@api_router.post("/checkout")
+async def checkout(req: CheckoutRequest):
+    if not req.items:
+        raise HTTPException(status_code=400, detail="Cart is empty")
+    si = req.shipping_info
+    shipping_info = {
+        "full_name": si.full_name, "address_1": si.address_1,
+        "address_2": si.address_2 or "", "city": si.city, "state": si.state or "",
+        "postcode": si.postcode, "country": si.country.upper(),
+        "email": si.email, "phone": si.phone or "",
+    }
+    merchize_items, local_items, subtotal = await _resolve_cart(req.items)
+    return await _create_merchize_order(
+        shipping_info, merchize_items, local_items, subtotal,
+        req.shipping_method, req.shipping_cost or 0.0, req.notes,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Stripe payment checkout -> creates Merchize order ONLY after payment
+# ---------------------------------------------------------------------------
+class PaymentCheckoutRequest(BaseModel):
+    shipping_info: ShippingInfo
+    items: List[CheckoutItem]
+    shipping_method: str = "standard"
+    notes: Optional[str] = ""
+    origin_url: str
+
+
+def _ensure_tax_settings():
+    if _tax_settings_ready["done"]:
+        return
+    try:
+        s = stripe.tax.Settings.retrieve()
+        if not (s.get("head_office") and s["head_office"].get("address")):
+            stripe.tax.Settings.modify(
+                head_office={"address": {"country": STRIPE_ACCOUNT_COUNTRY, "line1": "1 Studio Way",
+                                         "city": "Sydney", "state": "NSW", "postal_code": "2000"}},
+                defaults={"tax_behavior": "exclusive"},
+            )
+        _tax_settings_ready["done"] = True
+    except Exception as e:  # noqa
+        logger.warning(f"Tax settings not configured: {e}")
+
+
+@api_router.post("/payments/checkout")
+async def payments_checkout(req: PaymentCheckoutRequest):
+    if not req.items:
+        raise HTTPException(status_code=400, detail="Cart is empty")
+    si = req.shipping_info
+    shipping_info = {
+        "full_name": si.full_name, "address_1": si.address_1,
+        "address_2": si.address_2 or "", "city": si.city, "state": si.state or "",
+        "postcode": si.postcode, "country": si.country.upper(),
+        "email": si.email, "phone": si.phone or "",
+    }
+    # authoritative amounts computed server-side
+    merchize_items, local_items, subtotal = await _resolve_cart(req.items)
+    ship = await _shipping_options(req.items, si.country)
+    opt = next((o for o in ship["options"] if o["id"] == req.shipping_method), ship["options"][0])
+    shipping_cost = float(opt["cost"])
+    total = round(subtotal + shipping_cost, 2)
+
+    external_number = "EMBZ-" + uuid.uuid4().hex[:10].upper()
+
+    line_items = []
+    for mi in merchize_items:
+        pd = {"name": mi["name"] or "EMBZ product"}
+        img = mi.get("image")
+        if img and isinstance(img, str) and img.startswith("http"):
+            pd["images"] = [img]
+        line_items.append({
+            "price_data": {
+                "currency": "usd",
+                "product_data": pd,
+                "unit_amount": int(round(float(mi["price"]) * 100)),
+            },
+            "quantity": mi["quantity"],
+        })
+
+    kwargs = dict(
+        mode="payment",
+        line_items=line_items,
+        customer_email=si.email,
+        success_url=f"{req.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+        cancel_url=f"{req.origin_url}/payment/cancel",
+        metadata={"external_number": external_number, "kind": "embz_order"},
+    )
+    if shipping_cost > 0:
+        kwargs["shipping_options"] = [{
+            "shipping_rate_data": {
+                "type": "fixed_amount",
+                "fixed_amount": {"amount": int(round(shipping_cost * 100)), "currency": "usd"},
+                "display_name": opt["name"],
+            }
+        }]
+
+    session = None
+    try:
+        session = stripe.checkout.Session.create(**kwargs)
+    except Exception as e:  # noqa
+        logger.error(f"Stripe session create failed: {e}")
+        raise HTTPException(status_code=502, detail="Could not start payment session")
+
+    draft = {
+        "external_number": external_number,
+        "shipping_info": shipping_info,
+        "merchize_items": merchize_items,
+        "local_items": local_items,
+        "subtotal": subtotal,
+        "shipping_method": req.shipping_method,
+        "shipping_cost": shipping_cost,
+        "notes": req.notes or "",
+    }
+    await db.payment_transactions.insert_one({
+        "session_id": session.id,
+        "external_number": external_number,
+        "amount": total,
+        "currency": "usd",
+        "status": "initiated",
+        "payment_status": "pending",
+        "order_created": False,
+        "draft": draft,
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc),
+    })
+    return {"checkout_url": session.url, "session_id": session.id,
+            "external_number": external_number, "amount": total}
+
+
+async def _finalize_paid_session(session_id: str):
+    """Idempotently create the Merchize order for a paid session."""
+    record = await db.payment_transactions.find_one({"session_id": session_id})
+    if not record:
+        return None
+    if record.get("order_created") and record.get("external_number"):
+        return record.get("external_number")
+    # atomically claim creation
+    claim = await db.payment_transactions.update_one(
+        {"session_id": session_id, "order_created": {"$ne": True}},
+        {"$set": {"order_created": True, "updated_at": datetime.now(timezone.utc)}},
+    )
+    if claim.modified_count == 0:
+        rec = await db.payment_transactions.find_one({"session_id": session_id})
+        return rec.get("external_number") if rec else None
+    draft = record["draft"]
+    payment = {
+        "method": "stripe",
+        "status": "paid",
+        "session_id": session_id,
+        "amount": record.get("amount"),
+        "currency": record.get("currency", "usd"),
+    }
+    await _create_merchize_order(
+        draft["shipping_info"], draft["merchize_items"], draft["local_items"],
+        draft["subtotal"], draft["shipping_method"], draft["shipping_cost"],
+        draft["notes"], external_number=draft["external_number"], payment=payment,
+    )
+    return draft["external_number"]
+
+
+@api_router.get("/payments/status/{session_id}")
+async def payments_status(session_id: str):
+    record = await db.payment_transactions.find_one({"session_id": session_id})
+    if not record:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+    if record.get("payment_status") != "paid":
+        try:
+            s = stripe.checkout.Session.retrieve(session_id)
+            if s.payment_status == "paid" or s.status == "complete":
+                await db.payment_transactions.update_one(
+                    {"session_id": session_id, "payment_status": {"$ne": "paid"}},
+                    {"$set": {"status": "completed", "payment_status": "paid",
+                              "stripe_payment_intent_id": s.payment_intent,
+                              "updated_at": datetime.now(timezone.utc)}},
+                )
+                record = await db.payment_transactions.find_one({"session_id": session_id})
+        except Exception as e:  # noqa
+            logger.warning(f"Stripe status check failed: {e}")
+
+    external_number = record.get("external_number")
+    if record.get("payment_status") == "paid":
+        external_number = await _finalize_paid_session(session_id) or external_number
+
+    return {"session_id": session_id, "status": record.get("status"),
+            "payment_status": record.get("payment_status"),
+            "external_number": external_number,
+            "amount": record.get("amount")}
+
+
+@api_router.post("/stripe/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig = request.headers.get("stripe-signature", "")
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except Exception:  # noqa
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    obj, t = event["data"]["object"], event["type"]
+    if t == "checkout.session.completed":
+        sid = obj["id"]
+        await db.payment_transactions.update_one(
+            {"session_id": sid, "payment_status": {"$ne": "paid"}},
+            {"$set": {"status": "completed", "payment_status": obj.get("payment_status", "paid"),
+                      "stripe_payment_intent_id": obj.get("payment_intent"),
+                      "updated_at": datetime.now(timezone.utc)}},
+        )
+        await _finalize_paid_session(sid)
+    elif t == "checkout.session.expired":
+        await db.payment_transactions.update_one(
+            {"session_id": obj["id"]},
+            {"$set": {"status": "expired", "payment_status": "expired",
+                      "updated_at": datetime.now(timezone.utc)}})
+    return {"status": "ok"}
 
 
 # ---------------------------------------------------------------------------
@@ -673,6 +895,7 @@ async def startup():
     await db.store_products.create_index("published")
     await db.store_products.create_index("category")
     await db.orders.create_index("external_number", unique=True)
+    await db.payment_transactions.create_index("session_id", unique=True)
     count = await db.catalog.count_documents({})
     if count == 0:
         logger.info("Base catalog empty - launching background sync")

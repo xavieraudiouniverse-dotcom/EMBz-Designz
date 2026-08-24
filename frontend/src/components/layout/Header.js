@@ -21,12 +21,12 @@ export const Header = () => {
   const navLinks = [
     { to: "/shop", label: "Shop" },
     { to: "/shop?category=Apparel", label: "Apparel" },
-    { to: "/track", label: "Track Order" },
-    { to: "/admin", label: "Admin" },
+    { to: "/track", label: "Track" },
+    { to: "/admin", label: "Studio" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-[#07080B]/80 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-2">
@@ -36,9 +36,9 @@ export const Header = () => {
             <BrandMark />
           </div>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-7">
             {navLinks.map((l) => (
-              <Link key={l.label} to={l.to} className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors" data-testid={`nav-${l.label.toLowerCase().replace(/\s/g, '-')}`}>
+              <Link key={l.label} to={l.to} className="relative text-sm font-mono uppercase tracking-widest text-foreground/70 hover:text-neon transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-0 after:bg-neon after:transition-all hover:after:w-full" data-testid={`nav-${l.label.toLowerCase().replace(/\s/g, '-')}`}>
                 {l.label}
               </Link>
             ))}
@@ -50,15 +50,15 @@ export const Header = () => {
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Search"
-                className="h-9 w-40 lg:w-56 pl-9 rounded-full bg-card"
+                placeholder="Search drops"
+                className="h-9 w-40 lg:w-56 pl-9 rounded-full bg-card border-border font-mono text-xs"
                 data-testid="header-search-input"
               />
             </form>
-            <Button variant="ghost" size="icon" className="relative" onClick={() => setIsOpen(true)} data-testid="cart-open-button">
+            <Button variant="ghost" size="icon" className="relative hover:text-neon" onClick={() => setIsOpen(true)} data-testid="cart-open-button">
               <ShoppingBag className="h-5 w-5" />
               {count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-mustard text-[11px] font-semibold text-primary" data-testid="cart-count-badge">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-neon text-[11px] font-semibold text-[#07080B]" data-testid="cart-count-badge">
                   {count}
                 </span>
               )}
@@ -70,11 +70,11 @@ export const Header = () => {
           <div className="md:hidden pb-4 space-y-3">
             <form onSubmit={submitSearch} className="flex items-center relative">
               <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products" className="h-10 pl-9 rounded-full bg-card" data-testid="header-search-input-mobile" />
+              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search drops" className="h-10 pl-9 rounded-full bg-card font-mono text-xs" data-testid="header-search-input-mobile" />
             </form>
             <div className="flex flex-col">
               {navLinks.map((l) => (
-                <Link key={l.label} to={l.to} onClick={() => setMobileOpen(false)} className="py-2 text-sm font-medium border-b border-border/60">
+                <Link key={l.label} to={l.to} onClick={() => setMobileOpen(false)} className="py-2 text-sm font-mono uppercase tracking-widest border-b border-border/60">
                   {l.label}
                 </Link>
               ))}

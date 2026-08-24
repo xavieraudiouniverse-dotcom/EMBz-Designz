@@ -11,6 +11,8 @@ import ProductPage from "@/pages/ProductPage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 import TrackingPage from "@/pages/TrackingPage";
+import PaymentSuccessPage from "@/pages/PaymentSuccessPage";
+import PaymentCancelPage from "@/pages/PaymentCancelPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminCatalog from "@/pages/admin/AdminCatalog";
 import AdminProducts from "@/pages/admin/AdminProducts";
@@ -28,6 +30,8 @@ function App() {
           <Route path="/product/:id" element={<Store><ProductPage /></Store>} />
           <Route path="/checkout" element={<Store><CheckoutPage /></Store>} />
           <Route path="/order/:externalNumber" element={<Store><OrderConfirmationPage /></Store>} />
+          <Route path="/payment/success" element={<Store><PaymentSuccessPage /></Store>} />
+          <Route path="/payment/cancel" element={<Store><PaymentCancelPage /></Store>} />
           <Route path="/track" element={<Store><TrackingPage /></Store>} />
 
           <Route path="/admin" element={<AdminDashboard />} />

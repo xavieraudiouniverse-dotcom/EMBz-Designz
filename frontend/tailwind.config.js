@@ -8,8 +8,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        serif: ['Bitter', 'ui-serif', 'Georgia', 'serif'],
-        sans: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Bebas Neue"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"Bebas Neue"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
@@ -52,8 +53,19 @@ module.exports = {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         mustard: {
-          DEFAULT: '#C9A227',
-          soft: '#E7D7A0',
+          DEFAULT: '#00E5FF',
+          soft: '#B8FF2C',
+        },
+        neon: {
+          DEFAULT: '#00E5FF',
+          soft: '#B8FF2C',
+        },
+        lime: {
+          DEFAULT: '#B8FF2C',
+        },
+        rose: {
+          DEFAULT: '#FF3D8D',
+          soft: '#FF7AB6',
         },
         chart: {
           '1': 'hsl(var(--chart-1))',

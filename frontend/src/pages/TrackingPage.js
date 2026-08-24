@@ -96,7 +96,7 @@ export default function TrackingPage() {
                 (tracking && idx <= 2);
               return (
                 <div key={step.key} className="flex items-center gap-3">
-                  <div className={`h-9 w-9 rounded-full flex items-center justify-center ${reached ? "bg-mustard text-primary" : "bg-secondary text-muted-foreground"}`}>
+                  <div className={`h-9 w-9 rounded-full flex items-center justify-center ${reached ? "bg-neon text-[#07080B]" : "bg-secondary text-muted-foreground"}`}>
                     <step.icon className="h-4 w-4" />
                   </div>
                   <span className={reached ? "font-medium" : "text-muted-foreground"}>{step.label}</span>

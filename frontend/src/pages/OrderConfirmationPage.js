@@ -32,8 +32,8 @@ export default function OrderConfirmationPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center">
-        <div className="mx-auto h-14 w-14 rounded-full bg-mustard/20 flex items-center justify-center">
-          <CheckCircle2 className="h-7 w-7 text-mustard" />
+        <div className="mx-auto h-14 w-14 rounded-full bg-neon/20 flex items-center justify-center">
+          <CheckCircle2 className="h-7 w-7 text-neon" />
         </div>
         <h1 className="font-serif text-3xl mt-4">Thank you for your order</h1>
         <p className="text-muted-foreground mt-2">
@@ -42,7 +42,7 @@ export default function OrderConfirmationPage() {
       </div>
 
       <div className="mt-8 rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="border-l-4 border-mustard px-5 py-4 flex items-center justify-between">
+        <div className="border-l-4 border-neon px-5 py-4 flex items-center justify-between">
           <div>
             <div className="label-caps">Order number</div>
             <div className="font-mono text-lg" data-testid="order-confirmation-number">{externalNumber}</div>

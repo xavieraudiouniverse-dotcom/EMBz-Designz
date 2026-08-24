@@ -1,34 +1,26 @@
 [
   {
-    "content": "Phase 1: Core Merchize POC (auth + catalog fetch) — PROVEN via curl",
+    "content": "Confirm Merchize API linked to backend (health ok, 921 products)",
     "status": "completed"
   },
   {
-    "content": "Get design guidelines from design_agent (EMBZ brand)",
+    "content": "Stripe checkout: pay-before-order flow (payments/checkout, status poll, idempotent finalize, webhook)",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Backend — MerchizeClient, catalog sync to Mongo, storefront/product/category APIs",
+    "content": "Switch Stripe to owner's LIVE keys (verified live session creation)",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Backend — admin import/store-products, shipping quote, checkout (real Merchize order), order detail/tracking, admin orders + push/cancel/hold/resume",
+    "content": "Import first designs so store is live (4 demo drops published)",
     "status": "completed"
   },
   {
-    "content": "Phase 2: Frontend — Home, Shop, Product detail, Cart drawer, Checkout, Order confirmation, Tracking, Admin (orders/import/products)",
+    "content": "Redesign: professional/mysterious/clean, rain + city lights + graffiti, struggle-to-strength story",
     "status": "completed"
   },
   {
-    "content": "Phase 2: End to End Testing using Testing Agent (backend + frontend) — 100% pass",
-    "status": "completed"
-  },
-  {
-    "content": "Fix low-priority console warnings (RadioGroup, DialogDescription)",
-    "status": "completed"
-  },
-  {
-    "content": "Clean up demo products & test orders — store empty and ready",
-    "status": "completed"
+    "content": "Full paid-payment E2E with completed card (blocked: live keys = real charge; test-key browser automation flaky)",
+    "status": "cancelled"
   }
 ]
