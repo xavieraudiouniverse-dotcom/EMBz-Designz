@@ -1,2 +1,22 @@
+[project]
+name = "embz-backend"
+version = "0.1.0"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "motor",
+    "pymongo",
+    "python-dotenv",
+    "pydantic",
+    "email-validator",
+    "pyjwt",
+    "bcrypt",
+    "passlib",
+    "python-jose",
+    "requests",
+    "python-multipart",
+    "stripe",
+]
+
 [tool.vercel]
 entrypoint = "backend.server:app"
