@@ -1,0 +1,287 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    margin: 0;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+code, .font-mono {
+    font-family: 'IBM Plex Mono', source-code-pro, Menlo, Monaco, Consolas, monospace;
+}
+
+h1, h2, h3, h4, .font-serif, .font-display {
+    font-family: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: 0.01em;
+}
+
+@layer base {
+    :root {
+        --background: 30 8% 5%;
+        --foreground: 40 14% 92%;
+        --card: 30 9% 8%;
+        --card-foreground: 40 14% 92%;
+        --popover: 30 10% 7%;
+        --popover-foreground: 40 14% 92%;
+        --primary: 40 14% 92%;
+        --primary-foreground: 30 8% 6%;
+        --secondary: 30 8% 13%;
+        --secondary-foreground: 40 14% 92%;
+        --muted: 30 8% 12%;
+        --muted-foreground: 30 6% 60%;
+        --accent: 52 100% 48%;
+        --accent-foreground: 30 8% 6%;
+        --destructive: 337 100% 58%;
+        --destructive-foreground: 40 14% 96%;
+        --border: 30 8% 17%;
+        --input: 30 8% 17%;
+        --ring: 52 100% 48%;
+        --chart-1: 52 100% 48%;
+        --chart-2: 96 100% 62%;
+        --chart-3: 337 100% 58%;
+        --chart-4: 24 100% 56%;
+        --chart-5: 265 80% 66%;
+        --radius: 0.25rem;
+    }
+    .dark {
+        --background: 30 8% 5%;
+        --foreground: 40 14% 92%;
+        --card: 30 9% 8%;
+        --card-foreground: 40 14% 92%;
+        --popover: 30 10% 7%;
+        --popover-foreground: 40 14% 92%;
+        --primary: 40 14% 92%;
+        --primary-foreground: 30 8% 6%;
+        --secondary: 30 8% 13%;
+        --secondary-foreground: 40 14% 92%;
+        --muted: 30 8% 12%;
+        --muted-foreground: 30 6% 60%;
+        --accent: 52 100% 48%;
+        --accent-foreground: 30 8% 6%;
+        --destructive: 337 100% 58%;
+        --destructive-foreground: 40 14% 96%;
+        --border: 30 8% 17%;
+        --input: 30 8% 17%;
+        --ring: 52 100% 48%;
+        --chart-1: 52 100% 48%;
+        --chart-2: 96 100% 62%;
+        --chart-3: 337 100% 58%;
+        --chart-4: 24 100% 56%;
+        --chart-5: 265 80% 66%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer components {
+    /* Raw concrete wall backdrop with spray-paint bleed */
+    .neon-night {
+        background:
+            radial-gradient(900px circle at 15% -10%, rgba(244, 212, 0, 0.14), transparent 55%),
+            radial-gradient(800px circle at 90% 6%, rgba(255, 46, 126, 0.13), transparent 55%),
+            radial-gradient(700px circle at 50% 115%, rgba(140, 255, 61, 0.08), transparent 60%),
+            repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px),
+            linear-gradient(180deg, #0C0B09 0%, #14120E 55%, #0C0B09 100%);
+    }
+    .vignette::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,0.55) 100%);
+        pointer-events: none;
+        border-radius: inherit;
+    }
+    .tech-grid {
+        background-image:
+            linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+        background-size: 44px 44px;
+        -webkit-mask-image: radial-gradient(120% 120% at 50% 0%, #000 40%, transparent 75%);
+        mask-image: radial-gradient(120% 120% at 50% 0%, #000 40%, transparent 75%);
+    }
+    /* Moving banners that glide across the screen */
+    .moving-banners {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    .banner-row {
+        position: absolute;
+        left: -15%;
+        right: -15%;
+        white-space: nowrap;
+    }
+    .banner-track {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+    }
+    .banner-item {
+        padding-right: 3.5rem;
+    }
+    /* Solid caution-tape marquee strip */
+    .ticker-strip {
+        position: relative;
+        overflow: hidden;
+        border-top: 3px solid #0C0B09;
+        border-bottom: 3px solid #0C0B09;
+    }
+    .ticker-strip-inner {
+        background: rgba(12, 11, 9, 0.55);
+        overflow: hidden;
+        white-space: nowrap;
+        padding: 0.65rem 0;
+    }
+    .ticker-track {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+    }
+    .ticker-item {
+        padding-right: 2.5rem;
+        color: #0C0B09;
+        -webkit-text-stroke: 0.5px #0C0B09;
+        text-shadow: 1px 1px 0 rgba(255,255,255,0.15);
+    }
+    /* Spray-paint splatter overspray, like a wall after a tag session */
+    .city-lights {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+            radial-gradient(5px 5px at 10% 22%, rgba(244,212,0,0.55), transparent 60%),
+            radial-gradient(3px 3px at 22% 12%, rgba(255,46,126,0.5), transparent 60%),
+            radial-gradient(7px 7px at 38% 30%, rgba(140,255,61,0.4), transparent 60%),
+            radial-gradient(2px 2px at 55% 8%, rgba(244,212,0,0.45), transparent 60%),
+            radial-gradient(4px 4px at 68% 26%, rgba(255,46,126,0.4), transparent 60%),
+            radial-gradient(3px 3px at 82% 14%, rgba(140,255,61,0.35), transparent 60%),
+            radial-gradient(6px 6px at 92% 32%, rgba(244,212,0,0.3), transparent 60%),
+            radial-gradient(4px 4px at 15% 85%, rgba(255,46,126,0.35), transparent 60%),
+            radial-gradient(3px 3px at 60% 92%, rgba(140,255,61,0.3), transparent 60%);
+        filter: blur(0.4px);
+    }
+    /* Concrete grain overlay for a rough wall surface */
+    .concrete-wall {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.12'/></svg>");
+        mix-blend-mode: overlay;
+    }
+    /* Diagonal caution-tape stripe strip, for banner/ticker backgrounds */
+    .caution-stripes {
+        background-image: repeating-linear-gradient(
+            -45deg,
+            #F4D400,
+            #F4D400 22px,
+            #0C0B09 22px,
+            #0C0B09 44px
+        );
+    }
+    .label-caps {
+        @apply text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground;
+    }
+    .neon-text {
+        color: #F4D400;
+        text-shadow: 2px 2px 0 rgba(0,0,0,0.6), 0 0 18px rgba(244, 212, 0, 0.25);
+    }
+    .rose-text {
+        color: #FF2E7E;
+        text-shadow: 2px 2px 0 rgba(0,0,0,0.6), 0 0 16px rgba(255, 46, 126, 0.25);
+    }
+    .neon-border {
+        box-shadow: 0 0 0 2px rgba(244,212,0,0.4), 0 0 18px rgba(244,212,0,0.1);
+    }
+    .rose-glow {
+        box-shadow: 0 0 0 2px rgba(255,46,126,0.4), 0 0 20px rgba(255,46,126,0.14);
+    }
+    /* Graffiti spray accent line */
+    .spray-underline {
+        position: relative;
+    }
+    .spray-underline::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: -10px;
+        height: 10px;
+        background: radial-gradient(closest-side, rgba(244,212,0,0.7), transparent 70%) 0 0/24px 10px repeat-x;
+        -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='10'><path d='M0 6 Q30 2 60 6 T120 5' stroke='black' stroke-width='4' fill='none'/></svg>");
+        mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='10'><path d='M0 6 Q30 2 60 6 T120 5' stroke='black' stroke-width='4' fill='none'/></svg>");
+        opacity: 0.9;
+    }
+    /* Stencil-cut card border, like a spray stencil edge */
+    .stencil-card {
+        border: 2px solid rgba(244,212,0,0.18);
+        clip-path: polygon(0 6px, 6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+    }
+    .noise::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.04'/></svg>");
+        mix-blend-mode: screen;
+        pointer-events: none;
+        border-radius: inherit;
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.333%); }
+}
+
+@keyframes banner-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+@keyframes banner-scroll-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+
+    [data-debug-wrapper="true"] > * {
+        margin-left: inherit;
+        margin-right: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+        padding-left: inherit;
+        padding-right: inherit;
+        padding-top: inherit;
+        padding-bottom: inherit;
+        column-gap: inherit;
+        row-gap: inherit;
+        gap: inherit;
+        border-left-width: inherit;
+        border-right-width: inherit;
+        border-top-width: inherit;
+        border-bottom-width: inherit;
+        border-left-style: inherit;
+        border-right-style: inherit;
+        border-top-style: inherit;
+        border-bottom-style: inherit;
+        border-left-color: inherit;
+        border-right-color: inherit;
+        border-top-color: inherit;
+        border-bottom-color: inherit;
+    }
+}
