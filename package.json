@@ -52,8 +52,7 @@
     "postcss": "8.5.10",
     "react": "18.3.1",
     "react-day-picker": "8.10.1",
-    ""react-dom": "18.3.1",
-
+    "react-dom": "18.3.1",
     "react-hook-form": "7.56.2",
     "react-resizable-panels": "3.0.1",
     "react-router-dom": "7.15.0",
@@ -95,8 +94,7 @@
     "eslint-plugin-react": "7.37.4",
     "eslint-plugin-react-hooks": "5.2.0",
     "globals": "15.15.0"
-    "react-dom": "18.3.1",
- },
+  },
   "resolutions": {
     "react-router": "7.15.1",
     "node-forge": "1.4.0",
