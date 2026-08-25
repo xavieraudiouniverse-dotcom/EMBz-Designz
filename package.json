@@ -138,10 +138,5 @@
     "**/jest-util/picomatch": "2.3.2",
     "**/tinyglobby/picomatch": "4.0.4",
     "http-proxy-middleware": "2.0.10"
-  },
-  "overrides": {
-    "fork-ts-checker-webpack-plugin": "^9.1.0",
-    "ajv": "^8.17.1",
-    "ajv-keywords": "^5.1.0"
   }
 }
