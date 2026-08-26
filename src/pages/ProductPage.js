@@ -32,7 +32,7 @@ export default function ProductPage() {
   const [activeImg, setActiveImg] = useState(0);
 
   // initialise default selections when product loads
-  const attributes = product?.attributes || [];
+  const attributes = useMemo(() => product?.attributes || [], [product]);
   React.useEffect(() => {
     if (product) {
       const init = {};
@@ -225,4 +225,4 @@ export default function ProductPage() {
       </div>
     </div>
   );
-}
+              }
