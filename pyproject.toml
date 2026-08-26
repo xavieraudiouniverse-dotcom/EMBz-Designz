@@ -15,7 +15,7 @@ dependencies = [
     "python-jose",
     "requests",
     "python-multipart",
-    google-generativeai>=0.8.0     
+    "google-generativeai>=0.8.0"    
     "stripe",
     ]
 
