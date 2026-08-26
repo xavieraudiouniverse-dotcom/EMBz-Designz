@@ -27,9 +27,9 @@ from merchize import (
     RETAIL_MARKUP,
 )
 
-mongo_url = os.environ["MONGO_URL"]
+mongo_url = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ["DB_NAME"]]
+db = client[os.environ.get("DB_NAME", "embz")]
 
 # ---- Stripe (Flow A claimable sandbox) ----
 import stripe
@@ -685,7 +685,7 @@ async def payments_checkout(req: PaymentCheckoutRequest):
                 "product_data": pd,
                 "unit_amount": int(round(float(mi["price"]) * 100)),
             },
-            "quantity": mi[" mi["quantity"],
+            "quantity": mi["quantity"],
         })
 
     kwargs = dict(
@@ -918,6 +918,68 @@ async def admin_resume(external_number: str):
 
 
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Merchize webhook — receive order status/tracking updates from Merchize
+# ---------------------------------------------------------------------------
+MERCHIZE_WEBHOOK_SECRET = os.environ.get("MERCHIZE_WEBHOOK_SECRET", "")
+
+@api_router.post("/merchize/webhook")
+async def merchize_webhook(request: Request):
+    """Receive webhook events from Merchize (order status, tracking, etc.)."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    event_type = body.get("event") or body.get("type") or ""
+    data = body.get("data") or body.get("object") or {}
+    logger.info(f"Merchize webhook received: {event_type}")
+
+    # Extract order identifier (Merchize sends external_number as order_id)
+    external_number = data.get("order_id") or data.get("external_number") or data.get("order_code") or ""
+    now = datetime.now(timezone.utc)
+
+    if event_type in ("ORDER.CHANGED.TRACKING", "ORDER.CHANGED.SHIPMENT"):
+        # Tracking number / shipment info updated
+        tracking_info = data.get("tracking") or data.get("tracking_number") or {}
+        if external_number:
+            await db.orders.update_one(
+                {"external_number": external_number},
+                {"$set": {"tracking": tracking_info, "updated_at": now}},
+                upsert=True,
+            )
+            logger.info(f"Updated tracking for order {external_number}")
+
+    elif event_type in ("ORDER.CHANGED.PROGRESS", "ORDER.CHANGED.PROGRESS_STATUS"):
+        # Order progress / status changed
+        new_status = data.get("status") or data.get("progress") or data.get("progress_status") or ""
+        if external_number:
+            await db.orders.update_one(
+                {"external_number": external_number},
+                {"$set": {"status": new_status, "merchize_synced": True, "updated_at": now}},
+                upsert=True,
+            )
+            logger.info(f"Updated status for order {external_number}: {new_status}")
+
+    elif event_type == "ORDER.CREATED":
+        logger.info(f"Merchize order created: {external_number}")
+
+    elif event_type.startswith("ORDER.PAYMENT"):
+        # Payment-related events (refund, fulfillment cost, surcharge, etc.)
+        if external_number:
+            await db.orders.update_one(
+                {"external_number": external_number},
+                {"$set": {"merchize_payment_event": data, "updated_at": now}},
+                upsert=True,
+            )
+
+    else:
+        logger.info(f"Merchize webhook: unhandled event {event_type}")
+
+    return {"status": "ok", "event": event_type}
+
+
 app.include_router(api_router)
 app.add_middleware(
     CORSMiddleware, allow_credentials=True,
@@ -928,18 +990,21 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    await db.catalog.create_index("id", unique=True)
-    await db.catalog.create_index("category")
-    await db.catalog.create_index("title")
-    await db.store_products.create_index("id", unique=True)
-    await db.store_products.create_index("published")
-    await db.store_products.create_index("category")
-    await db.orders.create_index("external_number", unique=True)
-    await db.payment_transactions.create_index("session_id", unique=True)
-    count = await db.catalog.count_documents({})
-    if count == 0:
-        logger.info("Base catalog empty - launching background sync")
-        asyncio.create_task(sync_catalog())
+    try:
+        await db.catalog.create_index("id", unique=True)
+        await db.catalog.create_index("category")
+        await db.catalog.create_index("title")
+        await db.store_products.create_index("id", unique=True)
+        await db.store_products.create_index("published")
+        await db.store_products.create_index("category")
+        await db.orders.create_index("external_number", unique=True)
+        await db.payment_transactions.create_index("session_id", unique=True)
+        count = await db.catalog.count_documents({})
+        if count == 0:
+            logger.info("Base catalog empty - launching background sync")
+            asyncio.create_task(sync_catalog())
+    except Exception as e:
+        logger.warning(f"Startup DB init skipped (MongoDB may not be configured): {e}")
 
 
 @app.on_event("shutdown")
