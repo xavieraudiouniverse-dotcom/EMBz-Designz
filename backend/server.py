@@ -38,6 +38,19 @@ STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
 STRIPE_ACCOUNT_COUNTRY = os.environ.get("STRIPE_ACCOUNT_COUNTRY", "AU")
 _tax_settings_ready = {"done": False}
 
+# ---- Google Gemini AI ----
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    genai = None
+
+gemini_model = None
+if GEMINI_AVAILABLE and os.environ.get("GOOGLE_GENERATIVE_AI_API_KEY"):
+    genai.configure(api_key=os.environ["GOOGLE_GENERATIVE_AI_API_KEY"])
+    gemini_model = genai.GenerativeModel('gemini-1.5-pro')
+
 app = FastAPI(title="EMBZ Designs Storefront API")
 api_router = APIRouter(prefix="/api")
 
@@ -69,10 +82,10 @@ class ImportProductRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = ""
     category: Optional[str] = None
-    price: Optional[float] = None                 # single retail price for all variants
-    design_images: List[str] = Field(default_factory=list)   # artwork / mockups shown in store
-    design_front: Optional[str] = None            # printable artwork URL sent to Merchize
-    variant_ids: Optional[List[str]] = None       # subset of base variants (None = all)
+    price: Optional[float] = None
+    design_images: List[str] = Field(default_factory=list)
+    design_front: Optional[str] = None
+    variant_ids: Optional[List[str]] = None
     published: bool = True
 
 
@@ -111,6 +124,11 @@ class CheckoutRequest(BaseModel):
     notes: Optional[str] = ""
 
 
+class AIChatRequest(BaseModel):
+    message: str
+    context: Optional[str] = ""
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -124,7 +142,7 @@ def _serialize(doc: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Base catalog sync (ADMIN library only - NOT the storefront)
+# Base catalog sync
 # ---------------------------------------------------------------------------
 async def sync_catalog():
     if SYNC_STATE["running"]:
@@ -180,7 +198,35 @@ async def merchize_health():
 
 
 # ---------------------------------------------------------------------------
-# ADMIN: base-product library (browse Merchize blanks to import)
+# AI Chat (Gemini)
+# ---------------------------------------------------------------------------
+@api_router.post("/ai/chat")
+async def ai_chat(req: AIChatRequest):
+    if not GEMINI_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Gemini AI not configured. Install google-generativeai.")
+    if not gemini_model:
+        raise HTTPException(status_code=503, detail="GOOGLE_GENERATIVE_AI_API_KEY not set.")
+
+    system_prompt = (
+        "You are EMBZ Designs AI assistant. Help customers with product questions, "
+        "order tracking, and design recommendations. Be friendly and concise."
+    )
+    if req.context:
+        system_prompt += f"\n\nContext: {req.context}"
+
+    try:
+        response = gemini_model.generate_content(
+            f"{system_prompt}\n\nUser: {req.message}\n\nAssistant:",
+            generation_config={"temperature": 0.7, "max_output_tokens": 500}
+        )
+        return {"response": response.text, "model": "gemini-1.5-pro"}
+    except Exception as e:
+        logger.error(f"Gemini error: {e}")
+        raise HTTPException(status_code=502, detail=f"AI error: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# ADMIN: base-product library
 # ---------------------------------------------------------------------------
 @api_router.post("/admin/sync-catalog")
 async def admin_sync_catalog(background_tasks: BackgroundTasks):
@@ -229,7 +275,7 @@ async def admin_catalog_detail(base_id: str):
 
 
 # ---------------------------------------------------------------------------
-# ADMIN: store products (import / manage published items)
+# ADMIN: store products
 # ---------------------------------------------------------------------------
 @api_router.post("/admin/store-products")
 async def create_store_product(req: ImportProductRequest):
@@ -249,7 +295,6 @@ async def create_store_product(req: ImportProductRequest):
     if price is None:
         price = base.get("from_price") or 0.0
 
-    # rebuild attribute options from selected variants
     attr_values: Dict[str, Dict[str, dict]] = {}
     for v in selected:
         for name, info in (v.get("attributes") or {}).items():
@@ -339,7 +384,7 @@ async def delete_store_product(product_id: str):
 
 
 # ---------------------------------------------------------------------------
-# STOREFRONT (public) - only published store products
+# STOREFRONT (public)
 # ---------------------------------------------------------------------------
 @api_router.get("/categories")
 async def get_categories():
@@ -384,7 +429,7 @@ async def get_product(product_id: str):
 
 
 # ---------------------------------------------------------------------------
-# Shipping quote (cheapest / fastest) from real Merchize per-zone rates
+# Shipping quote
 # ---------------------------------------------------------------------------
 async def _load_store_map(product_ids: List[str]) -> Dict[str, dict]:
     ids = list(set(product_ids))
@@ -424,7 +469,7 @@ def _compute_base_shipping(items, zone, product_map) -> Optional[float]:
         return None
     max_first = max(first_prices) if first_prices else 0.0
     avg_additional = additional_total / total_units
-    remaining = additional_total - avg_additional  # first unit not charged additional
+    remaining = additional_total - avg_additional
     return round(max_first + remaining, 2)
 
 
@@ -472,8 +517,6 @@ async def shipping_quote(req: ShippingQuoteRequest):
 # Shared cart resolution + Merchize order creation
 # ---------------------------------------------------------------------------
 async def _resolve_cart(items):
-    """Return (merchize_items, local_items, subtotal) computed from Mongo
-    (authoritative prices - never trust the client)."""
     product_map = await _load_store_map([i.store_product_id for i in items])
     merchize_items, local_items, subtotal = [], [], 0.0
     for it in items:
@@ -536,7 +579,7 @@ async def _create_merchize_order(shipping_info: dict, merchize_items, local_item
     except MerchizeError as e:
         merchize_message = f"Merchize error {e.status}: {e.body}"
         logger.error(merchize_message)
-    except Exception as e:  # noqa
+    except Exception as e:
         merchize_message = str(e)
         logger.exception("Order creation failed")
 
@@ -564,7 +607,7 @@ async def _create_merchize_order(shipping_info: dict, merchize_items, local_item
 
 
 # ---------------------------------------------------------------------------
-# Direct checkout (no payment) - kept for internal/testing use
+# Direct checkout
 # ---------------------------------------------------------------------------
 @api_router.post("/checkout")
 async def checkout(req: CheckoutRequest):
@@ -585,7 +628,7 @@ async def checkout(req: CheckoutRequest):
 
 
 # ---------------------------------------------------------------------------
-# Stripe payment checkout -> creates Merchize order ONLY after payment
+# Stripe payment checkout
 # ---------------------------------------------------------------------------
 class PaymentCheckoutRequest(BaseModel):
     shipping_info: ShippingInfo
@@ -607,7 +650,7 @@ def _ensure_tax_settings():
                 defaults={"tax_behavior": "exclusive"},
             )
         _tax_settings_ready["done"] = True
-    except Exception as e:  # noqa
+    except Exception as e:
         logger.warning(f"Tax settings not configured: {e}")
 
 
@@ -622,7 +665,6 @@ async def payments_checkout(req: PaymentCheckoutRequest):
         "postcode": si.postcode, "country": si.country.upper(),
         "email": si.email, "phone": si.phone or "",
     }
-    # authoritative amounts computed server-side
     merchize_items, local_items, subtotal = await _resolve_cart(req.items)
     ship = await _shipping_options(req.items, si.country)
     opt = next((o for o in ship["options"] if o["id"] == req.shipping_method), ship["options"][0])
@@ -643,7 +685,7 @@ async def payments_checkout(req: PaymentCheckoutRequest):
                 "product_data": pd,
                 "unit_amount": int(round(float(mi["price"]) * 100)),
             },
-            "quantity": mi["quantity"],
+            "quantity": mi[" mi["quantity"],
         })
 
     kwargs = dict(
@@ -666,7 +708,7 @@ async def payments_checkout(req: PaymentCheckoutRequest):
     session = None
     try:
         session = stripe.checkout.Session.create(**kwargs)
-    except Exception as e:  # noqa
+    except Exception as e:
         logger.error(f"Stripe session create failed: {e}")
         raise HTTPException(status_code=502, detail="Could not start payment session")
 
@@ -697,13 +739,11 @@ async def payments_checkout(req: PaymentCheckoutRequest):
 
 
 async def _finalize_paid_session(session_id: str):
-    """Idempotently create the Merchize order for a paid session."""
     record = await db.payment_transactions.find_one({"session_id": session_id})
     if not record:
         return None
     if record.get("order_created") and record.get("external_number"):
         return record.get("external_number")
-    # atomically claim creation
     claim = await db.payment_transactions.update_one(
         {"session_id": session_id, "order_created": {"$ne": True}},
         {"$set": {"order_created": True, "updated_at": datetime.now(timezone.utc)}},
@@ -743,7 +783,7 @@ async def payments_status(session_id: str):
                               "updated_at": datetime.now(timezone.utc)}},
                 )
                 record = await db.payment_transactions.find_one({"session_id": session_id})
-        except Exception as e:  # noqa
+        except Exception as e:
             logger.warning(f"Stripe status check failed: {e}")
 
     external_number = record.get("external_number")
@@ -762,7 +802,7 @@ async def stripe_webhook(request: Request):
     sig = request.headers.get("stripe-signature", "")
     try:
         event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
-    except Exception:  # noqa
+    except Exception:
         raise HTTPException(status_code=400, detail="Invalid signature")
     obj, t = event["data"]["object"], event["type"]
     if t == "checkout.session.completed":
@@ -783,7 +823,7 @@ async def stripe_webhook(request: Request):
 
 
 # ---------------------------------------------------------------------------
-# Order lookup + tracking (customer)
+# Order lookup + tracking
 # ---------------------------------------------------------------------------
 @api_router.get("/orders/{external_number}")
 async def get_order(external_number: str):
@@ -849,7 +889,7 @@ async def _admin_action(external_number: str, action: str, new_status: str):
         result["message"] = resp.get("message")
     except MerchizeError as e:
         result["message"] = f"Merchize error {e.status}: {e.body}"
-    except Exception as e:  # noqa
+    except Exception as e:
         result["message"] = str(e)
     await db.orders.update_one({"external_number": external_number},
                                {"$set": {"status": new_status, "updated_at": datetime.now(timezone.utc)}})
