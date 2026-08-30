@@ -16,9 +16,10 @@ export function getStripe(): Stripe {
     throw new Error("STRIPE_SECRET_KEY is not set — add it to your environment variables.");
   }
   if (!cached) {
-    cached = new Stripe(key, {
-      apiVersion: "2024-06-20",
-    });
+    // No apiVersion pin on purpose: the Stripe SDK types the version as a string
+    // literal, so hard-coding one breaks the build every time the package updates.
+    // Omitting it uses the version this SDK release was built against.
+    cached = new Stripe(key);
   }
   return cached;
 }
