@@ -97,34 +97,3 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     </div>
   );
 }
-
-function PaymentButton({ orderId }: { orderId: string }) {
-  return (
-    <form
-      action={async () => {
-        "use server";
-        // This is a small SSR-gated form action that just fetches the session URL
-        // and returns it for a client redirect. The order ownership is enforced
-        // server-side by create-session (RLS check).
-        const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/api/checkout/create-session`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId }),
-        });
-        const json = await res.json();
-        if (json.url) {
-          // Redirect to Stripe Checkout.
-          // (Can't do this from a Server Action directly; would need to hand the URL back to client.)
-        }
-      }}
-      className="mt-3"
-    >
-      <button
-        type="submit"
-        className="sweep glow-hover rounded-full bg-accent px-6 py-2 text-sm font-semibold text-accent-foreground"
-      >
-        Pay now
-      </button>
-    </form>
-  );
-}

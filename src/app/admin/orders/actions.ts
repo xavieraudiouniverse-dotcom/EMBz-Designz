@@ -39,11 +39,3 @@ export async function retryFulfillment(formData: FormData) {
   await fulfillOrder(orderId);
   revalidatePath("/admin/orders");
 }
-
-export async function retryFulfillment(formData: FormData) {
-  await requireAdmin();
-  const orderId = String(formData.get("order_id"));
-  const { fulfillOrder } = await import("@/lib/order-fulfillment");
-  await fulfillOrder(orderId);
-  revalidatePath("/admin/orders");
-}
