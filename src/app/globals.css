@@ -112,10 +112,164 @@
       transparent
     );
   }
+
+  /* ---------- Cyberpunk hero system (homepage, legacy page) ---------- */
+
+  .hero-stage {
+    position: relative;
+    isolation: isolate;
+    background: radial-gradient(ellipse 90% 70% at 50% -20%, rgba(155, 92, 240, 0.28), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(62, 230, 224, 0.14), transparent 65%),
+      linear-gradient(180deg, #0c0a10 0%, #100d16 100%);
+  }
+
+  .holo-grid {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: linear-gradient(rgba(155, 92, 240, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(62, 230, 224, 0.12) 1px, transparent 1px);
+    background-size: 42px 42px;
+    -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 30%, #000 0%, transparent 75%);
+    mask-image: radial-gradient(ellipse 75% 65% at 50% 30%, #000 0%, transparent 75%);
+    animation: grid-drift 16s linear infinite;
+  }
+
+  .holo-particles {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(2px 2px at 12% 22%, rgba(62, 230, 224, 0.9), transparent 60%),
+      radial-gradient(2px 2px at 82% 15%, rgba(155, 92, 240, 0.9), transparent 60%),
+      radial-gradient(1.5px 1.5px at 32% 68%, rgba(62, 230, 224, 0.7), transparent 60%),
+      radial-gradient(1.5px 1.5px at 68% 78%, rgba(155, 92, 240, 0.7), transparent 60%),
+      radial-gradient(1.5px 1.5px at 92% 55%, rgba(62, 230, 224, 0.6), transparent 60%),
+      radial-gradient(1.5px 1.5px at 6% 82%, rgba(155, 92, 240, 0.6), transparent 60%);
+    animation: particle-drift 9s ease-in-out infinite alternate;
+  }
+
+  .hero-scan::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(62, 230, 224, 0.06) 50%, transparent 100%);
+    background-size: 100% 240px;
+    animation: scan-sweep 5s linear infinite;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(62, 230, 224, 0.35);
+    background: rgba(62, 230, 224, 0.06);
+    padding: 0.35rem 0.9rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: theme("colors.accent.DEFAULT");
+  }
+
+  .status-dot {
+    height: 7px;
+    width: 7px;
+    border-radius: 9999px;
+    background: theme("colors.accent.DEFAULT");
+    box-shadow: 0 0 10px 2px rgba(62, 230, 224, 0.8);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  .stat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-primary-glow {
+    position: relative;
+    overflow: hidden;
+    border-radius: 9999px;
+    background-image: theme("backgroundImage.gradient-purple");
+    padding: 0.9rem 2.2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(155, 92, 240, 0.4), 0 20px 45px -18px rgba(155, 92, 240, 0.8);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .btn-primary-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(155, 92, 240, 0.6), 0 26px 55px -18px rgba(155, 92, 240, 0.95);
+  }
+
+  .btn-outline-glow {
+    border-radius: 9999px;
+    border: 1px solid rgba(62, 230, 224, 0.4);
+    background: rgba(62, 230, 224, 0.04);
+    padding: 0.9rem 2.2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: theme("colors.accent.DEFAULT");
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  }
+  .btn-outline-glow:hover {
+    transform: translateY(-2px);
+    background: rgba(62, 230, 224, 0.1);
+    box-shadow: 0 20px 45px -20px rgba(62, 230, 224, 0.6);
+  }
 }
 
 @keyframes sweep-move {
   to {
     left: 160%;
+  }
+}
+
+@keyframes grid-drift {
+  to {
+    background-position: 42px 42px, 42px 42px;
+  }
+}
+
+@keyframes particle-drift {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  100% {
+    transform: translateY(-14px) translateX(6px);
+  }
+}
+
+@keyframes scan-sweep {
+  0% {
+    background-position: 0 -240px;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
   }
 }

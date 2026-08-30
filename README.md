@@ -163,6 +163,20 @@ Drop your real logo at:
 - `public/logo.png` — then swap `src/components/Logo.tsx`'s placeholder for an `<Image>` tag
 - `src/app/icon.png` — Next.js automatically uses this as the favicon
 
+## The Legacy page (`/legacy`)
+
+A tribute page dedicated to Ella Mary Broughton & John Broughton — linked from the
+homepage ("Explore the legacy") and the main nav. To add their real photos, drop the
+image files at:
+- `public/legacy/ella.jpg`
+- `public/legacy/john.jpg`
+
+The page shows a soft monogram in their place until those files exist, so nothing looks
+broken in the meantime — it swaps to the real photo automatically the moment you add it,
+no code change or redeploy needed beyond pushing the image file. Edit the copy (the
+tribute text, the four "what their legacy means" pillars, the Legacy Fund note) directly
+in `src/app/legacy/page.tsx`.
+
 ## What's built
 
 - **Storefront**: homepage, shop grid, product pages, cart (localStorage), checkout
@@ -187,6 +201,10 @@ Drop your real logo at:
   triggers Merchize fulfillment — fully gated, no fake payments possible
 - **AI assistant**: a site-wide chat widget (Gemini API, free tier) that answers product
   and navigation questions and looks up the signed-in customer's own orders
+- **Cyberpunk homepage hero**: animated holographic grid, drifting particles, and a scan
+  sweep in chrome/purple/cyan, with a "global movement online" status pill and stats row
+- **Legacy page** (`/legacy`): tribute page for Ella Mary Broughton & John Broughton with
+  a Legacy Fund section — see "The Legacy page" below for adding real photos
 
 ## Local development (optional)
 

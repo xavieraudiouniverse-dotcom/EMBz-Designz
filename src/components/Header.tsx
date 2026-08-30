@@ -28,6 +28,9 @@ export default function Header() {
           <Link href="/shop" className="hover:text-foreground">
             Shop
           </Link>
+          <Link href="/legacy" className="hover:text-foreground">
+            Legacy
+          </Link>
           <Link href="/account" className="hover:text-foreground">
             {email ? "My Account" : "Sign in"}
           </Link>

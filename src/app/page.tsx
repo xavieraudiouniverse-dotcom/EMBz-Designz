@@ -22,20 +22,55 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-20">
-      <section className="panel-metal edge-glow relative overflow-hidden rounded-2xl px-6 py-20 text-center">
-        <p className="mb-3 text-xs uppercase tracking-[0.3em] text-accent">Premium streetwear</p>
-        <h1 className="shimmer-text font-display text-5xl leading-tight md:text-7xl">
-          EMBZ DESIGNZ
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Chrome. Purple. Cyan. Drop after drop of oversized fits and metallic graphics built for the city.
-        </p>
-        <Link
-          href="/shop"
-          className="sweep glow-hover mt-8 inline-block rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground"
-        >
-          Shop the collection
-        </Link>
+      <section className="hero-stage hero-scan edge-glow relative overflow-hidden rounded-2xl px-6 py-24 text-center md:py-32">
+        <div className="holo-grid" />
+        <div className="holo-particles" />
+
+        <div className="relative z-10">
+          <span className="status-pill">
+            <span className="status-dot" />
+            Global movement online
+          </span>
+
+          <h1 className="shimmer-text mt-6 font-display text-6xl leading-[0.95] md:text-8xl">
+            EMBZ-DESIGNZ
+          </h1>
+          <p className="mt-3 text-sm uppercase tracking-[0.4em] text-accent md:text-base">
+            Street art without borders
+          </p>
+          <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
+            Chrome. Purple. Cyan. Drop after drop of oversized fits and metallic graphics — built in loving memory
+            of Ella Mary Broughton &amp; John Broughton.
+          </p>
+
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+            <Link href="/shop" className="btn-primary-glow">
+              Enter the store
+            </Link>
+            <Link href="/legacy" className="btn-outline-glow">
+              Explore the legacy
+            </Link>
+          </div>
+
+          <div className="hairline mx-auto mt-12 h-px w-full max-w-md" />
+
+          <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-2 gap-y-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            <span className="stat-chip">
+              <span className="font-display text-xl text-foreground">195+</span>
+              Countries
+            </span>
+            <span className="text-border">•</span>
+            <span className="stat-chip">
+              <span className="font-display text-xl text-foreground">Live</span>
+              Order tracking
+            </span>
+            <span className="text-border">•</span>
+            <span className="stat-chip">
+              <span className="font-display text-xl text-foreground">Secure</span>
+              Checkout
+            </span>
+          </div>
+        </div>
       </section>
 
       {featured.length > 0 && (
