@@ -35,9 +35,12 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isAdminRoute = path.startsWith("/admin");
   const isAdminLoginRoute = path === "/admin/login";
+  // First-run setup must be reachable before any admin exists.
+  const isBootstrapRoute = path === "/admin/bootstrap";
+  const isOpenAdminRoute = isAdminLoginRoute || isBootstrapRoute;
   const isAccountRoute = path.startsWith("/account");
 
-  if (isAdminRoute && !isAdminLoginRoute && !user) {
+  if (isAdminRoute && !isOpenAdminRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     return NextResponse.redirect(url);
@@ -50,7 +53,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (isAdminRoute && !isAdminLoginRoute && user) {
+  if (isAdminRoute && !isOpenAdminRoute && user) {
     const { data: roleRow } = await supabase
       .from("user_roles")
       .select("role")

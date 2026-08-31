@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -101,6 +102,11 @@ export default function AdminLoginPage() {
             {loading ? "VERIFYING…" : "ACCESS COMMAND CENTRE"}
           </button>
         </form>
+
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+        <GoogleAuthButton next="/admin" label="CONTINUE WITH GOOGLE" />
 
         <div className="cc-bottom" style={{ marginTop: 24 }}>
           <span>

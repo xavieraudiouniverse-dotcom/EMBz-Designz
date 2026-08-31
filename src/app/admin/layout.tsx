@@ -28,7 +28,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const supabase = createClient();
 
   // The admin login screen owns its own full-bleed hero — no command centre chrome.
-  if (pathname === "/admin/login") {
+  if (pathname === "/admin/login" || pathname === "/admin/bootstrap") {
     return <>{children}</>;
   }
 
