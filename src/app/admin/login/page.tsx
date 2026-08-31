@@ -24,53 +24,90 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="hero-stage hero-scan relative -mx-4 flex min-h-[80vh] flex-col items-center justify-center overflow-hidden rounded-2xl px-6 py-16 text-center">
-      <div className="holo-grid" />
-      <div className="holo-particles" />
-
-      <div className="relative z-10 flex w-full flex-col items-center">
-        <div className="holo-ring-wrap mb-8 h-40 w-40">
-          <span className="holo-ring r1" />
-          <span className="holo-ring r2" />
-          <span className="holo-ring r3" />
-          <span className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/60 font-display text-xl text-chrome-purple">
-            E
-          </span>
+    <div className="command-centre" style={{ gridTemplateColumns: "1fr", placeItems: "center" }}>
+      <div className="cc-card" style={{ width: "min(420px, 92vw)", padding: 30, margin: "60px 0" }}>
+        <div className="cc-brand" style={{ textAlign: "center", padding: "0 0 22px" }}>
+          <span>EMBZ NEXUS</span>
+          <small>COMMAND CENTRE</small>
         </div>
 
-        <p className="text-xs uppercase tracking-[0.35em] text-accent">Identity verification required</p>
-        <h1 className="shimmer-text mt-3 font-display text-3xl md:text-4xl">EMBZ Command Access</h1>
+        <div className="ai-command" style={{ marginBottom: 22 }}>
+          <div className="ai-core">✦</div>
+          <div className="ai-copy">
+            <b>IDENTITY VERIFICATION</b>
+            <small>AUTHORISED OPERATORS ONLY</small>
+          </div>
+        </div>
 
-        <form onSubmit={handleSubmit} className="mt-10 w-full max-w-sm space-y-4 text-left">
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12 }}>
           <div>
-            <label className="mb-1 block text-[11px] uppercase tracking-wide text-muted-foreground">Email</label>
+            <small style={{ fontSize: 7, letterSpacing: 2, color: "#75677f" }}>EMAIL</small>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-primary/30 bg-card/80 px-3 py-2.5 text-sm backdrop-blur focus:border-accent focus:outline-none"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                background: "#07040b",
+                border: "1px solid #291735",
+                color: "#fff",
+                borderRadius: 6,
+                padding: 11,
+                outline: "none",
+                fontSize: 11,
+              }}
             />
           </div>
           <div>
-            <label className="mb-1 block text-[11px] uppercase tracking-wide text-muted-foreground">Password</label>
+            <small style={{ fontSize: 7, letterSpacing: 2, color: "#75677f" }}>PASSWORD</small>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-primary/30 bg-card/80 px-3 py-2.5 text-sm backdrop-blur focus:border-accent focus:outline-none"
+              style={{
+                width: "100%",
+                marginTop: 6,
+                background: "#07040b",
+                border: "1px solid #291735",
+                color: "#fff",
+                borderRadius: 6,
+                padding: 11,
+                outline: "none",
+                fontSize: 11,
+              }}
             />
           </div>
-          {error && <p className="text-center text-sm text-destructive">{error}</p>}
-          <button disabled={loading} className="btn-primary-glow w-full">
-            {loading ? "Verifying…" : "Access command centre"}
+
+          {error && <p style={{ color: "#ff6b9c", fontSize: 10 }}>{error}</p>}
+
+          <button
+            disabled={loading}
+            style={{
+              border: 0,
+              borderRadius: 6,
+              background: "linear-gradient(135deg,#7b25c5,#b24fff)",
+              color: "#fff",
+              fontSize: 9,
+              fontWeight: 900,
+              letterSpacing: 1,
+              padding: "13px 15px",
+              cursor: "pointer",
+              marginTop: 4,
+            }}
+          >
+            {loading ? "VERIFYING…" : "ACCESS COMMAND CENTRE"}
           </button>
         </form>
 
-        <p className="mt-8 text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-          Secure · Encrypted · Protected
-        </p>
+        <div className="cc-bottom" style={{ marginTop: 24 }}>
+          <span>
+            <i />
+            SECURE · ENCRYPTED · PROTECTED
+          </span>
+        </div>
       </div>
     </div>
   );

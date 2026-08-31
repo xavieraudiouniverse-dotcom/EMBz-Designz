@@ -722,3 +722,11 @@ input[type="number"]{-moz-appearance:textfield}
 .cc-sidebar nav a:hover,.cc-sidebar nav a.active{background:linear-gradient(90deg,#24102f,#100817);color:#fff;box-shadow:inset 2px 0 #ae43ee}
 .cc-bottom a{cursor:pointer}
 .kpi strong{font-family:var(--font-orbitron),Orbitron,ui-monospace,monospace}
+
+/* Currency switcher: the nav's generic button reset strips borders and
+   backgrounds, which left AUD/NZD looking like plain text with no selected
+   state. These rules are specific enough to win it back. */
+.nav-actions .currency-switch{display:flex;border:1px solid #342044;border-radius:99px;overflow:hidden}
+.nav-actions .currency-switch button{padding:5px 11px;font-size:9px;letter-spacing:1px;color:#8c7c92;border-radius:0;background:none;border:0;cursor:pointer}
+.nav-actions .currency-switch button:hover{color:#d975ff}
+.nav-actions .currency-switch button.active{background:#7415b8;color:#fff}

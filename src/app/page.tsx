@@ -53,7 +53,7 @@ export default async function HomePage() {
         <div className="hero-copy">
           <p className="eyebrow">GLOBAL MOVEMENT · GLOBAL IMPACT</p>
           <Image
-            src="/embz-logo.png"
+            src="/embz-logo.jpg"
             alt="EMBZ-DESIGNZ"
             width={1254}
             height={1254}
