@@ -1,12 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { SUPABASE_URL, SUPABASE_ANON_KEY, hasSupabaseEnv } from "./env";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
+  // No Supabase credentials configured — let the request through untouched
+  // rather than throwing at the edge on every single page load.
+  if (!hasSupabaseEnv) return response;
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
