@@ -24,14 +24,26 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Logo />
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <Link href="/shop" className="hover:text-foreground">
+        <nav className="hidden items-center gap-6 text-xs uppercase tracking-[0.15em] text-muted-foreground md:flex">
+          <Link href="/shop" className="hover:text-accent">
             Shop
           </Link>
-          <Link href="/legacy" className="hover:text-foreground">
+          <Link href="/shop#collections" className="hover:text-accent">
+            Collections
+          </Link>
+          <Link href="/legacy" className="hover:text-accent">
             Legacy
           </Link>
-          <Link href="/account" className="hover:text-foreground">
+          <Link href="/track" className="hover:text-accent">
+            Track Order
+          </Link>
+          <Link href="/movement" className="hover:text-accent">
+            About
+          </Link>
+          <Link href="/contact" className="hover:text-accent">
+            Contact
+          </Link>
+          <Link href="/account" className="hover:text-accent">
             {email ? "My Account" : "Sign in"}
           </Link>
         </nav>

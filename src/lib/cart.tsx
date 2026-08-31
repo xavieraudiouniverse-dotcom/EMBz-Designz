@@ -10,13 +10,16 @@ export type CartItem = {
   price: number;
   image_url: string | null;
   quantity: number;
+  /** Optional human-readable variant, e.g. "Size: L / Color: Purple". Folded
+   * into the order item's product_name at checkout time. */
+  variant?: string;
 };
 
 type CartValue = {
   items: CartItem[];
   add: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  remove: (id: string) => void;
-  setQuantity: (id: string, quantity: number) => void;
+  remove: (id: string, variant?: string) => void;
+  setQuantity: (id: string, quantity: number, variant?: string) => void;
   clear: () => void;
   count: number;
   subtotal: number;
@@ -50,21 +53,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback((item: Omit<CartItem, "quantity">, quantity = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
+      // Items with different variants (size/color) are kept as separate lines.
+      const existing = prev.find((i) => i.id === item.id && i.variant === item.variant);
       if (existing) {
-        return prev.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + quantity } : i));
+        return prev.map((i) =>
+          i.id === item.id && i.variant === item.variant ? { ...i, quantity: i.quantity + quantity } : i,
+        );
       }
       return [...prev, { ...item, quantity }];
     });
   }, []);
 
-  const remove = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const remove = useCallback((id: string, variant?: string) => {
+    setItems((prev) => prev.filter((i) => !(i.id === id && i.variant === variant)));
   }, []);
 
-  const setQuantity = useCallback((id: string, quantity: number) => {
+  const setQuantity = useCallback((id: string, quantity: number, variant?: string) => {
     setItems((prev) =>
-      quantity <= 0 ? prev.filter((i) => i.id !== id) : prev.map((i) => (i.id === id ? { ...i, quantity } : i)),
+      quantity <= 0
+        ? prev.filter((i) => !(i.id === id && i.variant === variant))
+        : prev.map((i) => (i.id === id && i.variant === variant ? { ...i, quantity } : i)),
     );
   }, []);
 

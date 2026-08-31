@@ -1,4 +1,6 @@
+import Image from "next/image";
 import MemorialPortrait from "@/components/MemorialPortrait";
+import { UsersIcon, HeartIcon, SparkleIcon, SproutIcon } from "@/components/Icons";
 
 export const metadata = {
   title: "The Legacy — EMBZ DESIGNZ",
@@ -7,19 +9,27 @@ export const metadata = {
 
 const PILLARS = [
   {
-    title: "Family first",
+    Icon: UsersIcon,
+    title: "Family",
+    subtitle: "Our foundation",
     body: "Everything we do is for the family they left behind.",
   },
   {
-    title: "Love & unity",
+    Icon: HeartIcon,
+    title: "Love",
+    subtitle: "Our strength",
     body: "Uniting people through art, culture, and purpose.",
   },
   {
-    title: "Forever remembered",
+    Icon: SparkleIcon,
+    title: "Legacy",
+    subtitle: "Our purpose",
     body: "Their memory lives on in every piece we create.",
   },
   {
-    title: "Building the future",
+    Icon: SproutIcon,
+    title: "Future",
+    subtitle: "Our promise",
     body: "Creating opportunities and a better future for the next generation.",
   },
 ];
@@ -32,10 +42,20 @@ export default function LegacyPage() {
         <div className="holo-particles" />
         <div className="relative z-10">
           <p className="mb-3 text-xs uppercase tracking-[0.35em] text-accent">The legacy of</p>
-          <h1 className="shimmer-text font-display text-5xl leading-tight md:text-7xl">Ella &amp; John</h1>
+          <Image
+            src="/legacy/john-and-ella-title.png"
+            alt="John and Ella"
+            width={1536}
+            height={1024}
+            priority
+            className="mx-auto h-auto w-[92%] max-w-[820px] drop-shadow-[0_0_70px_rgba(155,92,240,0.55)] md:w-[85%]"
+          />
           <p className="mt-3 text-sm uppercase tracking-[0.3em] text-muted-foreground">
             A legacy of love. A future of hope.
           </p>
+          <a href="#our-story" className="btn-primary-glow mt-8 inline-block">
+            Our story
+          </a>
 
           <div className="mt-14 grid grid-cols-1 gap-10 sm:grid-cols-2">
             <div>
@@ -56,7 +76,7 @@ export default function LegacyPage() {
         </div>
       </section>
 
-      <section className="panel-metal edge-glow rounded-2xl px-6 py-10 text-center">
+      <section id="our-story" className="panel-metal edge-glow scroll-mt-24 rounded-2xl px-6 py-10 text-center">
         <h3 className="font-display text-lg uppercase tracking-[0.2em] text-accent">Their legacy. Our purpose.</h3>
         <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
           This store was created in loving memory of Ella Mary Broughton &amp; John Broughton. Every design, every
@@ -71,7 +91,11 @@ export default function LegacyPage() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {PILLARS.map((p) => (
             <div key={p.title} className="glow-hover rounded-xl border border-border bg-card p-5 text-center">
-              <h4 className="font-display text-sm uppercase tracking-wide text-foreground">{p.title}</h4>
+              <span className="feature-icon mx-auto">
+                <p.Icon className="h-5 w-5" />
+              </span>
+              <h4 className="mt-3 font-display text-sm uppercase tracking-wide text-foreground">{p.title}</h4>
+              <p className="text-[11px] uppercase tracking-wide text-accent">{p.subtitle}</p>
               <p className="mt-2 text-xs text-muted-foreground">{p.body}</p>
             </div>
           ))}

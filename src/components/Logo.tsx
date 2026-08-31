@@ -11,8 +11,11 @@ export default function Logo({ className = "" }: { className?: string }) {
       <span className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/60 text-chrome-purple font-display text-lg animate-pulse-glow">
         E
       </span>
-      <span className="font-display text-lg tracking-widest text-chrome-purple">
-        EMBZ <span className="text-accent">DESIGNZ</span>
+      <span
+        className="text-chrome-purple font-display text-lg tracking-[0.04em]"
+        style={{ textShadow: "0 0 18px rgba(155,92,240,0.45)" }}
+      >
+        EMBZ<span className="mx-[0.12em] text-accent">·</span>DESIGNZ
       </span>
     </Link>
   );

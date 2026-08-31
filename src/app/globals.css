@@ -230,6 +230,94 @@
     background: rgba(62, 230, 224, 0.1);
     box-shadow: 0 20px 45px -20px rgba(62, 230, 224, 0.6);
   }
+
+  /* ---------- Feature icon row (homepage) ---------- */
+  .feature-icon {
+    display: flex;
+    height: 3rem;
+    width: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    border: 1px solid rgba(155, 92, 240, 0.35);
+    background: rgba(155, 92, 240, 0.06);
+    color: theme("colors.accent.DEFAULT");
+  }
+
+  /* ---------- Admin "Command Centre" shell ---------- */
+  .command-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border-radius: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8rem;
+    color: theme("colors.muted.foreground");
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .command-nav-link:hover {
+    background: rgba(155, 92, 240, 0.08);
+    color: theme("colors.foreground");
+  }
+  .command-nav-link.active {
+    background: rgba(155, 92, 240, 0.14);
+    color: theme("colors.foreground");
+    box-shadow: inset 2px 0 0 theme("colors.primary.DEFAULT");
+  }
+
+  .live-dot {
+    height: 6px;
+    width: 6px;
+    border-radius: 9999px;
+    background: #34d399;
+    box-shadow: 0 0 8px 2px rgba(52, 211, 153, 0.8);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  /* ---------- Jarvis-style holo rings (admin login) ---------- */
+  .holo-ring-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .holo-ring {
+    position: absolute;
+    border-radius: 9999px;
+    border: 1px solid rgba(155, 92, 240, 0.45);
+  }
+  .holo-ring.r1 {
+    inset: 0;
+    animation: spin-cw 18s linear infinite;
+    border-top-color: rgba(62, 230, 224, 0.8);
+    border-right-color: rgba(62, 230, 224, 0.8);
+  }
+  .holo-ring.r2 {
+    inset: 28px;
+    animation: spin-ccw 13s linear infinite;
+    border-style: dashed;
+    opacity: 0.6;
+  }
+  .holo-ring.r3 {
+    inset: 56px;
+    animation: spin-cw 9s linear infinite;
+    border-bottom-color: rgba(155, 92, 240, 0.9);
+    border-left-color: rgba(155, 92, 240, 0.9);
+  }
+
+  /* ---------- World map / globe visualization ---------- */
+  .map-dot {
+    fill: rgba(155, 92, 240, 0.55);
+  }
+  .map-pin {
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+  .map-arc {
+    fill: none;
+    stroke-linecap: round;
+    stroke-dasharray: 6 6;
+    animation: arc-flow 2.4s linear infinite;
+  }
 }
 
 @keyframes sweep-move {
@@ -272,4 +360,63 @@
     opacity: 0.5;
     transform: scale(0.8);
   }
+}
+
+@keyframes spin-cw {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-ccw {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes arc-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Interactive real-geography globe (InteractiveGlobe.tsx) — sized by its
+   wrapper, drag/pinch/scroll handled entirely on the canvas in JS. */
+.real-globe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  touch-action: none;
+  user-select: none;
+}
+.real-globe canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  filter: drop-shadow(0 0 18px rgba(155, 92, 240, 0.35));
+}
+.real-globe canvas:active {
+  cursor: grabbing;
+}
+.globe-ui {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: none;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a89fb5;
+}
+.globe-ui b {
+  color: #3ee6e0;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
 }

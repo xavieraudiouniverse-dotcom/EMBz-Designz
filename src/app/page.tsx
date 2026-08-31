@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/ProductCard";
+import { GlobeIcon, RadarIcon, LockIcon, HeartIcon } from "@/components/Icons";
 import type { Product } from "@/types/database";
 
 export const revalidate = 0;
@@ -29,12 +31,17 @@ export default async function HomePage() {
         <div className="relative z-10">
           <span className="status-pill">
             <span className="status-dot" />
-            Global movement online
+            Global movement &middot; Global impact
           </span>
 
-          <h1 className="shimmer-text mt-6 font-display text-6xl leading-[0.95] md:text-8xl">
-            EMBZ-DESIGNZ
-          </h1>
+          <Image
+            src="/embz-logo.png"
+            alt="EMBZ DESIGNZ"
+            width={1254}
+            height={1254}
+            priority
+            className="mx-auto mt-6 h-auto w-[85%] max-w-[640px] drop-shadow-[0_0_70px_rgba(155,92,240,0.55)] sm:w-[75%] md:w-[560px]"
+          />
           <p className="mt-3 text-sm uppercase tracking-[0.4em] text-accent md:text-base">
             Street art without borders
           </p>
@@ -45,32 +52,32 @@ export default async function HomePage() {
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
             <Link href="/shop" className="btn-primary-glow">
-              Enter the store
+              Shop the movement
             </Link>
             <Link href="/legacy" className="btn-outline-glow">
               Explore the legacy
             </Link>
           </div>
-
-          <div className="hairline mx-auto mt-12 h-px w-full max-w-md" />
-
-          <div className="mx-auto mt-6 flex max-w-xl flex-wrap items-center justify-center gap-x-2 gap-y-3 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            <span className="stat-chip">
-              <span className="font-display text-xl text-foreground">195+</span>
-              Countries
-            </span>
-            <span className="text-border">•</span>
-            <span className="stat-chip">
-              <span className="font-display text-xl text-foreground">Live</span>
-              Order tracking
-            </span>
-            <span className="text-border">•</span>
-            <span className="stat-chip">
-              <span className="font-display text-xl text-foreground">Secure</span>
-              Checkout
-            </span>
-          </div>
         </div>
+      </section>
+
+      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {[
+          { Icon: GlobeIcon, title: "Worldwide shipping", body: "To all countries" },
+          { Icon: RadarIcon, title: "Live order tracking", body: "Global visibility" },
+          { Icon: LockIcon, title: "Secure checkout", body: "100% protected" },
+          { Icon: HeartIcon, title: "Dedicated legacy", body: "Family comes first" },
+        ].map((f) => (
+          <div key={f.title} className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-5 text-center">
+            <span className="feature-icon">
+              <f.Icon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-foreground">{f.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{f.body}</p>
+            </div>
+          </div>
+        ))}
       </section>
 
       {featured.length > 0 && (

@@ -24,7 +24,7 @@ export default function CartPage() {
     <div className="grid gap-10 md:grid-cols-[2fr_1fr]">
       <div className="space-y-4">
         {items.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
+          <div key={`${item.id}-${item.variant ?? ""}`} className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
             <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded bg-muted">
               {item.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -33,16 +33,20 @@ export default function CartPage() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium">{item.name}</p>
+              {item.variant && <p className="text-xs text-muted-foreground">{item.variant}</p>}
               <p className="text-sm text-accent">{formatPrice(item.price, currency, rateToAud)}</p>
             </div>
             <input
               type="number"
               min={1}
               value={item.quantity}
-              onChange={(e) => setQuantity(item.id, Number(e.target.value))}
+              onChange={(e) => setQuantity(item.id, Number(e.target.value), item.variant)}
               className="w-16 rounded border border-border bg-background px-2 py-1 text-center"
             />
-            <button onClick={() => remove(item.id)} className="text-xs text-muted-foreground hover:text-destructive">
+            <button
+              onClick={() => remove(item.id, item.variant)}
+              className="text-xs text-muted-foreground hover:text-destructive"
+            >
               Remove
             </button>
           </div>

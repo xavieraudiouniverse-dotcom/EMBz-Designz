@@ -29,16 +29,23 @@ export async function updateSession(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isAdminRoute = path.startsWith("/admin");
+  const isAdminLoginRoute = path === "/admin/login";
   const isAccountRoute = path.startsWith("/account");
 
-  if ((isAdminRoute || isAccountRoute) && !user) {
+  if (isAdminRoute && !isAdminLoginRoute && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    return NextResponse.redirect(url);
+  }
+
+  if (isAccountRoute && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
 
-  if (isAdminRoute && user) {
+  if (isAdminRoute && !isAdminLoginRoute && user) {
     const { data: roleRow } = await supabase
       .from("user_roles")
       .select("role")
@@ -49,6 +56,22 @@ export async function updateSession(request: NextRequest) {
     if (!roleRow) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Already signed in as admin and revisiting the admin login page — send
+  // straight to the dashboard instead of showing the form again.
+  if (isAdminLoginRoute && user) {
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (roleRow) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
   }

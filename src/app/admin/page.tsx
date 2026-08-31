@@ -3,7 +3,9 @@ import { formatPrice } from "@/lib/currency";
 import StatTile from "@/components/admin/StatTile";
 import BarChart from "@/components/admin/BarChart";
 import LineChart from "@/components/admin/LineChart";
+import InteractiveGlobe from "@/components/InteractiveGlobe";
 import { SHIPPING_STATUS_LABELS, SHIPPING_STATUS_ORDER } from "@/lib/tracking";
+import { CITY_LATLON } from "@/lib/geo";
 
 export const revalidate = 0;
 
@@ -27,7 +29,7 @@ function shortDate(iso: string) {
 export default async function AdminOverviewPage() {
   const supabase = createServiceClient();
 
-  const [{ data: orders }, { data: profiles }, { data: products }, { data: orderItems }, { data: fulfillmentLog }] =
+  const [{ data: orders }, { data: profiles }, { data: products }, { data: orderItems }, { data: fulfillmentLog }, { data: recentOrders }] =
     await Promise.all([
       supabase.from("orders").select("id, total, display_currency, display_total, shipping_status, created_at"),
       supabase.from("profiles").select("id, created_at"),
@@ -38,6 +40,11 @@ export default async function AdminOverviewPage() {
         .select("id, order_id, status, message, created_at")
         .order("created_at", { ascending: false })
         .limit(8),
+      supabase
+        .from("orders")
+        .select("id, customer_name, country, display_total, display_currency, shipping_status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(6),
     ]);
 
   const ordersList = orders ?? [];
@@ -46,6 +53,18 @@ export default async function AdminOverviewPage() {
   const customerCount = (profiles ?? []).length;
   const avgOrderValue = orderCount > 0 ? revenue / orderCount : 0;
   const lowStock = (products ?? []).filter((p: any) => p.is_active && p.stock < 10);
+  const activeShipments = ordersList.filter((o: any) =>
+    ["processing", "shipped", "in_transit", "out_for_delivery"].includes(o.shipping_status),
+  ).length;
+
+  function relativeTime(iso: string) {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.round(diffMs / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return `${hrs}hr ago`;
+    return `${Math.round(hrs / 24)}d ago`;
+  }
 
   // Revenue + signups over the last 30 days
   const days = lastNDays(30);
@@ -90,16 +109,65 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl">Command Center</h1>
-        <p className="text-sm text-muted-foreground">Everything happening in the store, at a glance.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.25em] text-accent">Global operations</p>
+          <h1 className="font-display text-2xl tracking-wide">EMBZ Command Centre</h1>
+        </div>
+        <span className="status-pill">
+          <span className="live-dot" />
+          Live
+        </span>
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatTile label="Revenue (AUD)" value={formatPrice(revenue, "AUD", 1)} />
-        <StatTile label="Orders" value={orderCount} />
-        <StatTile label="Customers" value={customerCount} />
-        <StatTile label="Avg order value" value={formatPrice(avgOrderValue, "AUD", 1)} />
+        <StatTile label="Total orders" value={orderCount} />
+        <StatTile label="Total revenue" value={formatPrice(revenue, "AUD", 1)} />
+        <StatTile label="Active customers" value={customerCount} />
+        <StatTile label="Active shipments" value={activeShipments} />
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-[1.5fr_1fr]">
+        <div className="panel-metal edge-glow relative overflow-hidden rounded-2xl p-4">
+          <h2 className="mb-2 px-1 text-sm text-muted-foreground">Global activity</h2>
+          <div className="aspect-[2/1] w-full">
+            {(() => {
+              const nodes = [
+                { ...CITY_LATLON.sydney, label: "Sydney", tone: "cyan" as const },
+                { ...CITY_LATLON["new york"], label: "New York", tone: "purple" as const },
+                { ...CITY_LATLON.london, label: "London", tone: "cyan" as const },
+                { ...CITY_LATLON.tokyo, label: "Tokyo", tone: "purple" as const },
+                { ...CITY_LATLON.singapore, label: "Singapore", tone: "cyan" as const },
+              ];
+              const routes = [
+                { from: nodes[0], to: nodes[1], tone: "purple" as const },
+                { from: nodes[0], to: nodes[2], tone: "cyan" as const },
+                { from: nodes[1], to: nodes[3], tone: "purple" as const },
+                { from: nodes[2], to: nodes[4], tone: "cyan" as const },
+              ];
+              return <InteractiveGlobe points={nodes} routes={routes} small />;
+            })()}
+          </div>
+        </div>
+        <div className="panel-metal rounded-2xl p-5">
+          <h2 className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="live-dot" /> Live feed
+          </h2>
+          <ul className="space-y-3 text-xs">
+            {(recentOrders ?? []).length === 0 && <li className="text-muted-foreground">No orders yet.</li>}
+            {(recentOrders ?? []).map((o: any) => (
+              <li key={o.id} className="border-b border-border pb-3 last:border-0">
+                <p className="text-foreground">
+                  New order <span className="text-accent">EMBZ-{o.id.slice(0, 8).toUpperCase()}</span>
+                </p>
+                <p className="mt-0.5 flex justify-between text-muted-foreground">
+                  <span>{o.country || "Unknown"}</span>
+                  <span>{relativeTime(o.created_at)}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {lowStock.length > 0 && (
