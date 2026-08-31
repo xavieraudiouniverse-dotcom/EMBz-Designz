@@ -48,27 +48,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-      <nav className="panel-metal h-fit space-y-1 rounded-xl p-3 md:sticky md:top-20">
-        <div className="mb-3 px-2">
-          <p className="font-display text-sm tracking-widest text-chrome-purple">EMBZ COMMAND</p>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Global operations</p>
-        </div>
+    <div className="admin-page">
+      <nav className="admin-side">
+        <b>EMBZ COMMAND</b>
         {LINKS.map((l) => {
           const active = pathname === l.href || (l.href !== "/admin" && pathname?.startsWith(l.href));
           return (
-            <Link key={l.href} href={l.href} className={`command-nav-link ${active ? "active" : ""}`}>
+            <Link key={l.href} href={l.href} className={active ? "active" : ""}>
               <l.Icon className="h-4 w-4 shrink-0" />
-              {l.label}
+              {l.label.toUpperCase()}
             </Link>
           );
         })}
-        <button onClick={handleLogout} className="command-nav-link w-full text-left">
+        <a onClick={handleLogout} role="button">
           <LogOutIcon className="h-4 w-4 shrink-0" />
-          Logout
-        </button>
+          LOGOUT
+        </a>
       </nav>
-      <div>{children}</div>
+      <div className="admin-main">{children}</div>
     </div>
   );
 }

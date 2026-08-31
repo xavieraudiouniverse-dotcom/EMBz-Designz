@@ -36,56 +36,46 @@ export default function SignupPage() {
 
   if (done) {
     return (
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="mb-4 text-2xl">Check your email</h1>
-        <p className="text-muted-foreground">We sent a confirmation link to {email}.</p>
+      <div className="auth">
+        <div className="auth-box">
+          <p className="eyebrow">ALMOST THERE</p>
+          <h1 style={{ fontSize: 24, marginTop: 8 }}>CHECK YOUR EMAIL</h1>
+          <p className="smallcaps" style={{ marginTop: 16 }}>
+            We sent a confirmation link to {email}.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="mb-6 text-2xl">Create account</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          required
-          placeholder="Full name"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full rounded border border-border bg-card px-3 py-2"
-        />
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border border-border bg-card px-3 py-2"
-        />
-        <input
-          type="password"
-          required
-          minLength={6}
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded border border-border bg-card px-3 py-2"
-        />
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <button
-          disabled={loading}
-          className="sweep glow-hover w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground"
-        >
-          {loading ? "Creating..." : "Create account"}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-muted-foreground">
-        Already have an account?{" "}
-        <Link href="/login" className="text-accent hover:underline">
-          Sign in
-        </Link>
-      </p>
+    <div className="auth">
+      <div className="auth-box">
+        <p className="eyebrow">JOIN THE MOVEMENT</p>
+        <h1 style={{ fontSize: 26, marginTop: 8 }}>CREATE ACCOUNT</h1>
+        <form onSubmit={handleSubmit}>
+          <input type="text" required placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="password"
+            required
+            minLength={6}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && <p style={{ color: "#ff6b9c", fontSize: 12 }}>{error}</p>}
+          <button disabled={loading} className="btn full">
+            {loading ? "CREATING…" : "CREATE ACCOUNT"}
+          </button>
+        </form>
+        <p className="smallcaps">
+          Already have an account?{" "}
+          <Link href="/login" style={{ color: "#c65cff" }}>
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -5,31 +5,35 @@ import { useCurrency } from "@/lib/currency-context";
 import { formatPrice } from "@/lib/currency";
 import type { Product } from "@/types/database";
 
-export default function ProductCard({ product }: { product: Product }) {
+type ProductWithCategory = Product & { categories?: { name: string; slug: string } | null };
+
+export default function ProductCard({ product }: { product: ProductWithCategory }) {
   const { currency, rateToAud } = useCurrency();
+  const category = product.categories?.name;
 
   return (
-    <Link
-      href={`/shop/${product.slug}`}
-      className="edge-glow glow-hover group rounded-xl border border-border bg-card p-3 transition"
-    >
-      <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+    <Link href={`/shop/${product.slug}`} className="product-card">
+      <div className="pc-art">
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          />
+          <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-chrome font-display text-2xl">
-            EMBZ
+          <div className="art">
+            <div className="art-orb" />
+            <div className="art-ring a" />
+            <div className="art-ring b" />
+            <div className="art-mark">EMBZ</div>
+            <i className="spark s1" />
+            <i className="spark s2" />
+            <i className="spark s3" />
           </div>
         )}
+        {product.is_featured && <em>FEATURED</em>}
       </div>
-      <div className="mt-3 space-y-1">
-        <h3 className="text-sm font-medium">{product.name}</h3>
-        <p className="text-sm text-accent">{formatPrice(product.price, currency, rateToAud)}</p>
+      <div className="pc-info">
+        <b>{product.name}</b>
+        {category && <small>{category}</small>}
+        <strong>{formatPrice(product.price, currency, rateToAud)}</strong>
       </div>
     </Link>
   );

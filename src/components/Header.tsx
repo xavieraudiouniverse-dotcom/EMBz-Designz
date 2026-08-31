@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useCart } from "@/lib/cart";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
-import Logo from "@/components/Logo";
 
 export default function Header() {
   const { count } = useCart();
   const [email, setEmail] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -21,47 +21,82 @@ export default function Header() {
   }, [supabase]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <Logo />
-        <nav className="hidden items-center gap-6 text-xs uppercase tracking-[0.15em] text-muted-foreground md:flex">
-          <Link href="/shop" className="hover:text-accent">
-            Shop
+    <>
+      <header className="hero-banner">
+        <div>
+          DEDICATED TO THE LEGACY OF
+          <br />
+          <b>ELLA MARY BROUGHTON</b> &amp; <b>JOHN BROUGHTON</b>
+          <small>ANY PROCEEDS SUPPORT THEIR FAMILY</small>
+        </div>
+        <strong>
+          EMBZ-DESIGNZ
+          <small>STREET ART WITHOUT BORDERS</small>
+        </strong>
+        <div>
+          <b>THE $9.1 BILLION MOVEMENT</b>
+          <small>
+            ONE WORLD. BILLIONS OF CONNECTIONS.
+            <br />
+            ONE LEGACY.
+          </small>
+        </div>
+      </header>
+
+      <nav className="nav">
+        <Link href="/" className="brand">
+          EMBZ<span>✦</span>
+        </Link>
+
+        <div className={`links ${menuOpen ? "open" : ""}`}>
+          <Link href="/shop" onClick={() => setMenuOpen(false)}>
+            SHOP
           </Link>
-          <Link href="/shop#collections" className="hover:text-accent">
-            Collections
+          <Link href="/shop#collections" onClick={() => setMenuOpen(false)}>
+            COLLECTIONS
           </Link>
-          <Link href="/legacy" className="hover:text-accent">
-            Legacy
+          <Link href="/legacy" onClick={() => setMenuOpen(false)}>
+            LEGACY
           </Link>
-          <Link href="/track" className="hover:text-accent">
-            Track Order
+          <Link href="/movement" onClick={() => setMenuOpen(false)}>
+            THE MOVEMENT
           </Link>
-          <Link href="/movement" className="hover:text-accent">
-            About
+          <Link href="/track" onClick={() => setMenuOpen(false)}>
+            TRACK ORDER
           </Link>
-          <Link href="/contact" className="hover:text-accent">
-            Contact
-          </Link>
-          <Link href="/account" className="hover:text-accent">
-            {email ? "My Account" : "Sign in"}
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
-          <CurrencySwitcher />
-          <Link
-            href="/cart"
-            className="edge-glow relative rounded-full border border-border px-3 py-1.5 text-sm hover:border-primary"
-          >
-            Cart
-            {count > 0 && (
-              <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-semibold text-accent-foreground">
-                {count}
-              </span>
-            )}
+          <Link href="/contact" onClick={() => setMenuOpen(false)}>
+            CONTACT
           </Link>
         </div>
-      </div>
-    </header>
+
+        <div className="nav-actions">
+          <CurrencySwitcher />
+          <Link href="/shop" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
+          </Link>
+          <Link href="/account" aria-label={email ? "My account" : "Sign in"}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="3" />
+              <path d="M5 20c1-3.4 3.3-5 7-5s6 1.6 7 5" />
+            </svg>
+          </Link>
+          <Link href="/cart" className="bag" aria-label="Cart">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 8h14l-1 12H6L5 8Z" />
+              <path d="M9 8a3 3 0 0 1 6 0" />
+            </svg>
+            {count > 0 && <b>{count}</b>}
+          </Link>
+          <button onClick={() => setMenuOpen((o) => !o)} aria-label="Menu">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
+      </nav>
+    </>
   );
 }

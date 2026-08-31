@@ -107,12 +107,26 @@ export default async function AdminOverviewPage() {
   ordersList.forEach((o: any) => currencyTotals.set(o.display_currency, (currencyTotals.get(o.display_currency) ?? 0) + 1));
   const currencyData = [...currencyTotals.entries()].map(([label, value]) => ({ label, value }));
 
+  const nodes = [
+    { ...CITY_LATLON.sydney, label: "Sydney", tone: "cyan" as const },
+    { ...CITY_LATLON["new york"], label: "New York", tone: "purple" as const },
+    { ...CITY_LATLON.london, label: "London", tone: "cyan" as const },
+    { ...CITY_LATLON.tokyo, label: "Tokyo", tone: "purple" as const },
+    { ...CITY_LATLON.singapore, label: "Singapore", tone: "cyan" as const },
+  ];
+  const routes = [
+    { from: nodes[0], to: nodes[1], tone: "purple" as const },
+    { from: nodes[0], to: nodes[2], tone: "cyan" as const },
+    { from: nodes[1], to: nodes[3], tone: "purple" as const },
+    { from: nodes[2], to: nodes[4], tone: "cyan" as const },
+  ];
+
   return (
-    <div className="space-y-10">
+    <div>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-accent">Global operations</p>
-          <h1 className="font-display text-2xl tracking-wide">EMBZ Command Centre</h1>
+          <p className="eyebrow">GLOBAL OPERATIONS</p>
+          <h1>EMBZ COMMAND CENTRE</h1>
         </div>
         <span className="status-pill">
           <span className="live-dot" />
@@ -120,104 +134,101 @@ export default async function AdminOverviewPage() {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="metrics" style={{ marginTop: 24 }}>
         <StatTile label="Total orders" value={orderCount} />
         <StatTile label="Total revenue" value={formatPrice(revenue, "AUD", 1)} />
         <StatTile label="Active customers" value={customerCount} />
         <StatTile label="Active shipments" value={activeShipments} />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-[1.5fr_1fr]">
-        <div className="panel-metal edge-glow relative overflow-hidden rounded-2xl p-4">
-          <h2 className="mb-2 px-1 text-sm text-muted-foreground">Global activity</h2>
-          <div className="aspect-[2/1] w-full">
-            {(() => {
-              const nodes = [
-                { ...CITY_LATLON.sydney, label: "Sydney", tone: "cyan" as const },
-                { ...CITY_LATLON["new york"], label: "New York", tone: "purple" as const },
-                { ...CITY_LATLON.london, label: "London", tone: "cyan" as const },
-                { ...CITY_LATLON.tokyo, label: "Tokyo", tone: "purple" as const },
-                { ...CITY_LATLON.singapore, label: "Singapore", tone: "cyan" as const },
-              ];
-              const routes = [
-                { from: nodes[0], to: nodes[1], tone: "purple" as const },
-                { from: nodes[0], to: nodes[2], tone: "cyan" as const },
-                { from: nodes[1], to: nodes[3], tone: "purple" as const },
-                { from: nodes[2], to: nodes[4], tone: "cyan" as const },
-              ];
-              return <InteractiveGlobe points={nodes} routes={routes} small />;
-            })()}
-          </div>
+      <div className="grid gap-6 md:grid-cols-[1.5fr_1fr]" style={{ marginTop: 24 }}>
+        <div className="admin-map" style={{ flexDirection: "column", padding: 16 }}>
+          <p className="smallcaps" style={{ alignSelf: "flex-start" }}>
+            GLOBAL ACTIVITY
+          </p>
+          <InteractiveGlobe points={nodes} routes={routes} small />
         </div>
-        <div className="panel-metal rounded-2xl p-5">
-          <h2 className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="live-dot" /> Live feed
+        <div className="panel">
+          <h2 className="smallcaps" style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <span className="live-dot" /> LIVE FEED
           </h2>
-          <ul className="space-y-3 text-xs">
-            {(recentOrders ?? []).length === 0 && <li className="text-muted-foreground">No orders yet.</li>}
+          <div>
+            {(recentOrders ?? []).length === 0 && <p className="smallcaps">No orders yet.</p>}
             {(recentOrders ?? []).map((o: any) => (
-              <li key={o.id} className="border-b border-border pb-3 last:border-0">
-                <p className="text-foreground">
-                  New order <span className="text-accent">EMBZ-{o.id.slice(0, 8).toUpperCase()}</span>
+              <div key={o.id} style={{ borderBottom: "1px solid #241430", padding: "10px 0", fontSize: 11 }}>
+                <p style={{ color: "#eee" }}>
+                  New order <span style={{ color: "#c96aff" }}>EMBZ-{o.id.slice(0, 8).toUpperCase()}</span>
                 </p>
-                <p className="mt-0.5 flex justify-between text-muted-foreground">
+                <p style={{ marginTop: 2, display: "flex", justifyContent: "space-between", color: "#8e8497" }}>
                   <span>{o.country || "Unknown"}</span>
                   <span>{relativeTime(o.created_at)}</span>
                 </p>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
 
       {lowStock.length > 0 && (
-        <div className="rounded-xl border border-yellow-500/40 bg-yellow-500/5 p-4">
-          <p className="text-sm text-yellow-400">
+        <div style={{ marginTop: 24, border: "1px solid rgba(234,179,8,.4)", background: "rgba(234,179,8,.05)", padding: 16 }}>
+          <p style={{ fontSize: 12, color: "#ffcf6b" }}>
             {lowStock.length} product{lowStock.length > 1 ? "s" : ""} low on stock: {lowStock.map((p: any) => p.name).join(", ")}
           </p>
         </div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Revenue — last 30 days</h2>
+      <div className="grid gap-6 md:grid-cols-2" style={{ marginTop: 24 }}>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            REVENUE — LAST 30 DAYS
+          </h2>
           <LineChart data={revenueSeries} color={CHART_PURPLE} formatValue={(v) => formatPrice(v, "AUD", 1)} />
         </div>
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Signups — last 30 days</h2>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            SIGNUPS — LAST 30 DAYS
+          </h2>
           <LineChart data={signupSeries} color={CHART_TEAL} formatValue={(v) => `${v} signup${v === 1 ? "" : "s"}`} />
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Orders by status</h2>
+      <div className="grid gap-6 md:grid-cols-2" style={{ marginTop: 24 }}>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            ORDERS BY STATUS
+          </h2>
           <BarChart data={statusData} color={CHART_TEAL} />
         </div>
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Top products by revenue</h2>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            TOP PRODUCTS BY REVENUE
+          </h2>
           <BarChart data={topProducts} color={CHART_PURPLE} emptyLabel="No sales yet" />
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Orders by currency</h2>
+      <div className="grid gap-6 md:grid-cols-2" style={{ marginTop: 24, marginBottom: 24 }}>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            ORDERS BY CURRENCY
+          </h2>
           <BarChart data={currencyData} color={CHART_PURPLE} />
         </div>
-        <div className="panel-metal rounded-xl p-5">
-          <h2 className="mb-4 text-sm text-muted-foreground">Recent Merchize fulfillment activity</h2>
+        <div className="panel">
+          <h2 className="smallcaps" style={{ marginBottom: 16 }}>
+            RECENT MERCHIZE FULFILLMENT ACTIVITY
+          </h2>
           {!fulfillmentLog || fulfillmentLog.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing logged yet.</p>
+            <p className="smallcaps">Nothing logged yet.</p>
           ) : (
-            <ul className="space-y-2 text-xs">
+            <div>
               {fulfillmentLog.map((log: any) => (
-                <li key={log.id} className="flex items-start justify-between gap-3 border-b border-border pb-2 last:border-0">
-                  <span className="text-muted-foreground">{log.message}</span>
-                  <span className={log.status === "failed" ? "text-destructive" : "text-accent"}>{log.status}</span>
-                </li>
+                <div key={log.id} style={{ display: "flex", justifyContent: "space-between", gap: 12, borderBottom: "1px solid #241430", padding: "8px 0", fontSize: 11 }}>
+                  <span style={{ color: "#8e8497" }}>{log.message}</span>
+                  <span style={{ color: log.status === "failed" ? "#ff6b9c" : "#3ee6e0" }}>{log.status}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>

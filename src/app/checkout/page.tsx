@@ -48,18 +48,26 @@ export default function CheckoutPage() {
 
   if (userId === null) {
     return (
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="mb-4 text-2xl">Sign in to checkout</h1>
-        <p className="mb-6 text-muted-foreground">Create an account or sign in to place your order.</p>
-        <a href="/login?next=/checkout" className="text-accent hover:underline">
-          Go to sign in
+      <div className="page center" style={{ textAlign: "center" }}>
+        <h1 style={{ fontSize: 28 }}>SIGN IN TO CHECKOUT</h1>
+        <p className="smallcaps" style={{ margin: "16px 0" }}>
+          Create an account or sign in to place your order.
+        </p>
+        <a href="/login?next=/checkout" className="btn">
+          GO TO SIGN IN
         </a>
       </div>
     );
   }
 
   if (items.length === 0) {
-    return <p className="text-center text-muted-foreground">Your cart is empty.</p>;
+    return (
+      <div className="page">
+        <p className="smallcaps" style={{ textAlign: "center" }}>
+          YOUR CART IS EMPTY.
+        </p>
+      </div>
+    );
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -152,101 +160,105 @@ export default function CheckoutPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <h1 className="font-display text-2xl">Checkout</h1>
+    <form onSubmit={handleSubmit} className="page">
+      <div className="page-title" style={{ textAlign: "left" }}>
+        <h1>CHECKOUT</h1>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-3">
-          <p className="mb-1 text-xs uppercase tracking-[0.2em] text-accent">Shipping information</p>
-          {(
-            [
-              ["customer_name", "Full name", true],
-              ["customer_email", "Email address", true],
-              ["phone", "Phone (optional)", false],
-              ["address_line1", "Address", true],
-              ["address_line2", "Apartment, suite, etc. (optional)", false],
-              ["city", "City", true],
-              ["postal_code", "Postcode", true],
-              ["country", "Country", true],
-            ] as const
-          ).map(([key, label, required]) => (
-            <input
-              key={key}
-              required={required}
-              placeholder={label}
-              value={(form as any)[key]}
-              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-              className="w-full rounded border border-border bg-card px-3 py-2 text-sm"
+        <div className="panel">
+          <h2>SHIPPING INFORMATION</h2>
+          <div style={{ display: "grid", gap: 10, marginTop: 16 }}>
+            {(
+              [
+                ["customer_name", "Full name", true],
+                ["customer_email", "Email address", true],
+                ["phone", "Phone (optional)", false],
+                ["address_line1", "Address", true],
+                ["address_line2", "Apartment, suite, etc. (optional)", false],
+                ["city", "City", true],
+                ["postal_code", "Postcode", true],
+                ["country", "Country", true],
+              ] as const
+            ).map(([key, label, required]) => (
+              <input
+                key={key}
+                required={required}
+                placeholder={label}
+                value={(form as any)[key]}
+                onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+              />
+            ))}
+            <textarea
+              placeholder="Order notes (optional)"
+              value={form.notes}
+              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              style={{ width: "100%", padding: 13, background: "#06030b", border: "1px solid #352043", color: "#fff", outline: "none", minHeight: 80 }}
             />
-          ))}
-          <textarea
-            placeholder="Order notes (optional)"
-            value={form.notes}
-            onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-            className="w-full rounded border border-border bg-card px-3 py-2 text-sm"
-          />
+          </div>
         </div>
 
-        <div>
-          <p className="mb-3 text-xs uppercase tracking-[0.2em] text-accent">Shipping method</p>
-          <div className="space-y-2">
+        <div className="panel">
+          <h2>SHIPPING METHOD</h2>
+          <div style={{ display: "grid", gap: 8, marginTop: 16 }}>
             {SHIPPING_METHODS.map((m) => (
               <label
                 key={m.id}
-                className={`flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
-                  shippingId === m.id ? "border-primary bg-primary/10" : "border-border bg-card hover:border-accent/50"
-                }`}
+                style={{
+                  display: "flex",
+                  cursor: "pointer",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  border: `1px solid ${shippingId === m.id ? "#b33dff" : "#352043"}`,
+                  background: shippingId === m.id ? "rgba(155,28,255,.12)" : "#06030b",
+                  padding: "12px 14px",
+                  fontSize: 11,
+                }}
               >
-                <span className="flex items-center gap-3">
-                  <input
-                    type="radio"
-                    name="shipping"
-                    checked={shippingId === m.id}
-                    onChange={() => setShippingId(m.id)}
-                    className="accent-primary"
-                  />
+                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <input type="radio" name="shipping" checked={shippingId === m.id} onChange={() => setShippingId(m.id)} style={{ width: "auto" }} />
                   <span>
-                    <span className="block font-medium">{m.label}</span>
-                    <span className="block text-xs text-muted-foreground">{m.eta}</span>
+                    <b style={{ display: "block" }}>{m.label.toUpperCase()}</b>
+                    <small style={{ color: "#8e8497" }}>{m.eta}</small>
                   </span>
                 </span>
-                <span className="text-accent">{formatPrice(m.price, currency, rateToAud)}</span>
+                <span style={{ color: "#d66eff" }}>{formatPrice(m.price, currency, rateToAud)}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div className="panel-metal h-fit space-y-4 rounded-xl p-6 lg:sticky lg:top-20">
-          <h2 className="text-lg">Order summary</h2>
-          <div className="space-y-1">
-            {items.map((item) => (
-              <div key={`${item.id}-${item.variant ?? ""}`} className="flex justify-between py-1 text-sm">
-                <span className="text-muted-foreground">
-                  {item.name} × {item.quantity}
-                  {item.variant && <span className="block text-[11px]">{item.variant}</span>}
-                </span>
-                <span>{formatPrice(item.price * item.quantity, currency, rateToAud)}</span>
-              </div>
-            ))}
-          </div>
-          <div className="space-y-1 border-t border-border pt-3 text-sm">
-            <div className="flex justify-between text-muted-foreground">
-              <span>Shipping</span>
-              <span>{formatPrice(shippingMethod.price, currency, rateToAud)}</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Tax (GST)</span>
-              <span>{formatPrice(tax, currency, rateToAud)}</span>
-            </div>
-          </div>
-          <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
-            <span>Total</span>
-            <span className="text-accent">{formatPrice(total, currency, rateToAud)}</span>
-          </div>
-          <p className="text-center text-[11px] uppercase tracking-wide text-muted-foreground">30-day easy returns</p>
-          <div className="flex flex-wrap items-center justify-center gap-2 border-t border-border pt-4">
+        <div className="summary" style={{ height: "fit-content" }}>
+          <h2 style={{ marginBottom: 12 }}>ORDER SUMMARY</h2>
+          {items.map((item) => (
+            <p key={`${item.id}-${item.variant ?? ""}`}>
+              <span>
+                {item.name} × {item.quantity}
+                {item.variant && <small style={{ display: "block", color: "#8e8497" }}>{item.variant}</small>}
+              </span>
+              <span>{formatPrice(item.price * item.quantity, currency, rateToAud)}</span>
+            </p>
+          ))}
+          <hr />
+          <p>
+            <span>SHIPPING</span>
+            <span>{formatPrice(shippingMethod.price, currency, rateToAud)}</span>
+          </p>
+          <p>
+            <span>TAX (GST)</span>
+            <span>{formatPrice(tax, currency, rateToAud)}</span>
+          </p>
+          <hr />
+          <h3>
+            <span>TOTAL</span>
+            <span style={{ color: "#d66eff" }}>{formatPrice(total, currency, rateToAud)}</span>
+          </h3>
+          <p className="smallcaps" style={{ textAlign: "center", marginTop: 16 }}>
+            30-DAY EASY RETURNS
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 16, borderTop: "1px solid #2e193e", paddingTop: 16 }}>
             {PAYMENT_ICONS.map((p) => (
-              <span key={p} className="rounded border border-border bg-card px-2 py-1 text-[10px] text-muted-foreground">
+              <span key={p} style={{ border: "1px solid #352043", padding: "4px 8px", fontSize: 9, color: "#8e8497" }}>
                 {p}
               </span>
             ))}
@@ -254,13 +266,12 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p style={{ color: "#ff6b9c", fontSize: 12, marginTop: 16 }}>{error}</p>
+      )}
 
-      <button
-        disabled={submitting}
-        className="sweep glow-hover w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground"
-      >
-        {submitting ? "Placing order…" : "Place order securely"}
+      <button disabled={submitting} className="btn full" style={{ marginTop: 24 }}>
+        {submitting ? "PLACING ORDER…" : "PLACE ORDER SECURELY"}
       </button>
     </form>
   );

@@ -68,66 +68,67 @@ function TrackForm() {
   const url = result ? trackingUrl(result.carrier, result.tracking_number) : null;
 
   return (
-    <div className="space-y-10">
-      <div className="text-center">
-        <p className="mb-2 text-xs uppercase tracking-[0.35em] text-accent">Live tracking</p>
-        <h1 className="shimmer-text font-display text-4xl md:text-5xl">Track the movement</h1>
-        <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-          Enter your order number to see exactly where your drop is right now.
-        </p>
-      </div>
+    <div className="page" style={{ textAlign: "center" }}>
+      <p className="eyebrow">LIVE TRACKING</p>
+      <h1 style={{ fontSize: 38, textShadow: "0 0 15px #7b20bd" }}>TRACK THE MOVEMENT</h1>
+      <p style={{ maxWidth: 480, margin: "12px auto 0", color: "#d8c9e2", fontSize: 13 }}>
+        Enter your order number to see exactly where your drop is right now.
+      </p>
 
-      <form onSubmit={handleTrack} className="mx-auto flex max-w-md flex-wrap items-center justify-center gap-3">
+      <form onSubmit={handleTrack} className="track-form">
         <input
           value={orderNumber}
           onChange={(e) => setOrderNumber(e.target.value)}
           placeholder="EMBZ-92B473"
-          className="min-w-0 flex-1 rounded-full border border-border bg-card px-4 py-3 text-sm uppercase tracking-wide"
+          style={{ textTransform: "uppercase" }}
         />
-        <button disabled={loading} className="btn-primary-glow">
-          {loading ? "Tracking…" : "Track order"}
+        <button disabled={loading} className="btn" style={{ marginLeft: 10 }}>
+          {loading ? "TRACKING…" : "TRACK ORDER"}
         </button>
       </form>
-      {error && <p className="text-center text-sm text-destructive">{error}</p>}
+      {error && <p style={{ color: "#ff6b9c", fontSize: 12 }}>{error}</p>}
 
       {result && (
-        <div className="grid gap-8 md:grid-cols-[1fr_1.3fr]">
-          <div className="panel-metal rounded-2xl p-6">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Order</p>
-            <p className="font-display text-xl text-foreground">{result.code}</p>
+        <div className="track-result" style={{ marginTop: 40, textAlign: "left" }}>
+          <div className="timeline">
+            <p className="smallcaps">ORDER</p>
+            <p style={{ fontSize: 22, color: "#fff" }}>{result.code}</p>
             {result.first_name && (
-              <p className="mt-1 text-sm text-muted-foreground">Thanks for the order, {result.first_name}!</p>
+              <p className="smallcaps" style={{ marginTop: 4 }}>
+                Thanks for the order, {result.first_name}!
+              </p>
             )}
-            <ol className="mt-6 flex flex-col gap-0">
+            <div style={{ marginTop: 20 }}>
               {SHIPPING_STATUS_ORDER.map((status, i) => {
                 const done = i <= stageIndex;
-                const isLast = i === SHIPPING_STATUS_ORDER.length - 1;
+                const current = i === stageIndex;
                 return (
-                  <li key={status} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <span className={`h-3 w-3 rounded-full ${done ? "bg-accent shadow-cyan" : "bg-muted"} ${i === stageIndex ? "animate-pulse-glow" : ""}`} />
-                      {!isLast && <span className={`w-px flex-1 ${done ? "bg-accent/60" : "bg-border"}`} style={{ minHeight: 26 }} />}
+                  <div key={status} className={`step ${done ? "complete" : ""} ${current ? "current" : ""}`}>
+                    <i>{done ? "✓" : i + 1}</i>
+                    <div>
+                      <b style={{ color: done ? "#fff" : "#75687d" }}>{SHIPPING_STATUS_LABELS[status]}</b>
                     </div>
-                    <div className={`pb-5 text-sm ${done ? "text-foreground" : "text-muted-foreground"}`}>
-                      {SHIPPING_STATUS_LABELS[status]}
-                    </div>
-                  </li>
+                  </div>
                 );
               })}
-            </ol>
+            </div>
             {url && (
-              <a href={url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-accent hover:underline">
+              <a href={url} target="_blank" rel="noreferrer" className="text-link" style={{ marginTop: 12, display: "inline-block" }}>
                 Track with {result.carrier} →
               </a>
             )}
           </div>
-          <div className="panel-metal edge-glow relative overflow-hidden rounded-2xl p-4">
-            <div className="aspect-[2/1] w-full">
-              <InteractiveGlobe points={points} routes={routes} />
-            </div>
-            <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Current location: {SHIPPING_STATUS_LABELS[result.shipping_status]}</span>
-              <span>Destination: {result.destination_country ?? "—"}</span>
+          <div>
+            <InteractiveGlobe points={points} routes={routes} />
+            <div className="location">
+              <div>
+                <span>CURRENT STATUS</span>
+                <b>{SHIPPING_STATUS_LABELS[result.shipping_status]}</b>
+              </div>
+              <div>
+                <span>DESTINATION</span>
+                <b>{result.destination_country ?? "—"}</b>
+              </div>
             </div>
           </div>
         </div>

@@ -8,10 +8,10 @@ export const metadata = {
 };
 
 const STATS = [
-  { value: "9,100,000,000", label: "Connections possible" },
-  { value: "195+", label: "Countries" },
-  { value: "1.2M+", label: "Supporters" },
-  { value: "50K+", label: "Artists" },
+  { value: "9,100,000,000", label: "CONNECTIONS POSSIBLE" },
+  { value: "195+", label: "COUNTRIES" },
+  { value: "1.2M+", label: "SUPPORTERS" },
+  { value: "50K+", label: "ARTISTS" },
 ];
 
 // A loose ring of hub cities standing in for the global network — abstract,
@@ -38,36 +38,28 @@ const ROUTES: GlobeRoute[] = [
 
 export default function MovementPage() {
   return (
-    <div className="space-y-14">
-      <div className="text-center">
-        <p className="mb-2 text-xs uppercase tracking-[0.35em] text-accent">One world. One legacy.</p>
-        <h1 className="shimmer-text font-display text-4xl leading-tight md:text-6xl">The $9.1 billion movement</h1>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Every EMBZ piece connects a wearer to a story, a country to a community, and a purchase to a purpose. This
-          is what that network looks like at scale.
-        </p>
-      </div>
+    <div className="movement-hero">
+      <p className="eyebrow">ONE WORLD. ONE LEGACY.</p>
+      <h1>THE $9.1 BILLION MOVEMENT</h1>
+      <p style={{ maxWidth: 560, margin: "16px auto 0", color: "#aaa0af", fontSize: 13, lineHeight: 1.7 }}>
+        Every EMBZ piece connects a wearer to a story, a country to a community, and a purchase to a purpose. This
+        is what that network looks like at scale.
+      </p>
 
-      <div className="panel-metal edge-glow relative overflow-hidden rounded-2xl p-4">
-        <div className="aspect-[2/1] w-full">
-          <InteractiveGlobe points={HUBS} routes={ROUTES} />
-        </div>
-      </div>
+      <InteractiveGlobe points={HUBS} routes={ROUTES} />
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="stats">
         {STATS.map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-6 text-center">
-            <p className="font-display text-2xl text-chrome-purple md:text-3xl">{s.value}</p>
-            <p className="mt-2 text-xs uppercase tracking-wide text-muted-foreground">{s.label}</p>
+          <div key={s.label}>
+            <b>{s.value}</b>
+            <small>{s.label}</small>
           </div>
         ))}
       </div>
 
-      <div className="text-center">
-        <Link href="/shop" className="btn-primary-glow">
-          Be part of the movement
-        </Link>
-      </div>
+      <Link href="/shop" className="btn" style={{ marginTop: 20 }}>
+        BE PART OF THE MOVEMENT
+      </Link>
     </div>
   );
 }

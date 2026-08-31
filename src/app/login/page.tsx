@@ -26,39 +26,31 @@ function LoginForm() {
   }
 
   return (
-    <div className="mx-auto max-w-sm">
-      <h1 className="mb-6 text-2xl">Sign in</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded border border-border bg-card px-3 py-2"
-        />
-        <input
-          type="password"
-          required
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded border border-border bg-card px-3 py-2"
-        />
-        {error && <p className="text-sm text-destructive">{error}</p>}
-        <button
-          disabled={loading}
-          className="sweep glow-hover w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground"
-        >
-          {loading ? "Signing in..." : "Sign in"}
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-muted-foreground">
-        No account?{" "}
-        <Link href="/signup" className="text-accent hover:underline">
-          Sign up
-        </Link>
-      </p>
+    <div className="auth">
+      <div className="auth-box">
+        <p className="eyebrow">WELCOME BACK</p>
+        <h1 style={{ fontSize: 26, marginTop: 8 }}>SIGN IN</h1>
+        <form onSubmit={handleSubmit}>
+          <input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="password"
+            required
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {error && <p style={{ color: "#ff6b9c", fontSize: 12 }}>{error}</p>}
+          <button disabled={loading} className="btn full">
+            {loading ? "SIGNING IN…" : "SIGN IN"}
+          </button>
+        </form>
+        <p className="smallcaps">
+          No account?{" "}
+          <Link href="/signup" style={{ color: "#c65cff" }}>
+            Sign up
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

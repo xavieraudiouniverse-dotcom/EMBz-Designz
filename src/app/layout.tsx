@@ -41,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CurrencyProvider nzdRate={nzdRate}>
           <CartProvider>
             <Header />
-            <main className="mx-auto min-h-[70vh] max-w-6xl px-4 py-10">{children}</main>
+            <main className="min-h-[70vh]">{children}</main>
             <Footer />
             <AssistantWidget />
           </CartProvider>

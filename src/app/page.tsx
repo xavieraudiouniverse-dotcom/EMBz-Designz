@@ -2,108 +2,145 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import ProductCard from "@/components/ProductCard";
+import Artwork from "@/components/Artwork";
+import InteractiveGlobe from "@/components/InteractiveGlobe";
 import { GlobeIcon, RadarIcon, LockIcon, HeartIcon } from "@/components/Icons";
+import { CITY_LATLON } from "@/lib/geo";
 import type { Product } from "@/types/database";
 
 export const revalidate = 0;
 
+const FEATURES = [
+  { Icon: GlobeIcon, title: "WORLDWIDE SHIPPING", body: "TO ALL COUNTRIES" },
+  { Icon: RadarIcon, title: "LIVE ORDER TRACKING", body: "REAL TIME UPDATES" },
+  { Icon: LockIcon, title: "SECURE CHECKOUT", body: "100% ENCRYPTED" },
+  { Icon: HeartIcon, title: "DEDICATED LEGACY", body: "FAMILY COMES FIRST" },
+];
+
 export default async function HomePage() {
   const supabase = createClient();
-  let featured: Product[] = [];
+  let featured: (Product & { categories?: { name: string; slug: string } | null })[] = [];
   try {
     const { data } = await supabase
       .from("products")
-      .select("*")
+      .select("*, categories(name, slug)")
       .eq("is_active", true)
       .eq("is_featured", true)
       .limit(4);
-    featured = (data as Product[]) ?? [];
+    featured = (data as any) ?? [];
   } catch {
     // Supabase not configured yet
   }
 
+  const nodes = [
+    { ...CITY_LATLON.sydney, label: "Sydney", tone: "cyan" as const },
+    { ...CITY_LATLON["new york"], label: "New York", tone: "purple" as const },
+    { ...CITY_LATLON.london, label: "London", tone: "cyan" as const },
+    { ...CITY_LATLON.tokyo, label: "Tokyo", tone: "purple" as const },
+    { ...CITY_LATLON.singapore, label: "Singapore", tone: "cyan" as const },
+  ];
+  const routes = [
+    { from: nodes[0], to: nodes[1], tone: "purple" as const },
+    { from: nodes[0], to: nodes[2], tone: "cyan" as const },
+    { from: nodes[1], to: nodes[3], tone: "purple" as const },
+    { from: nodes[2], to: nodes[4], tone: "cyan" as const },
+  ];
+
   return (
-    <div className="space-y-20">
-      <section className="hero-stage hero-scan edge-glow relative overflow-hidden rounded-2xl px-6 py-24 text-center md:py-32">
-        <div className="holo-grid" />
-        <div className="holo-particles" />
-
-        <div className="relative z-10">
-          <span className="status-pill">
-            <span className="status-dot" />
-            Global movement &middot; Global impact
-          </span>
-
+    <main>
+      <section className="home-hero">
+        <div className="city-grid" />
+        <div className="hero-copy">
+          <p className="eyebrow">GLOBAL MOVEMENT · GLOBAL IMPACT</p>
           <Image
             src="/embz-logo.png"
-            alt="EMBZ DESIGNZ"
+            alt="EMBZ-DESIGNZ"
             width={1254}
             height={1254}
             priority
-            className="mx-auto mt-6 h-auto w-[85%] max-w-[640px] drop-shadow-[0_0_70px_rgba(155,92,240,0.55)] sm:w-[75%] md:w-[560px]"
+            className="mx-auto mt-3 h-auto w-[240px] drop-shadow-[0_0_45px_rgba(155,42,255,0.6)] sm:w-[300px]"
           />
-          <p className="mt-3 text-sm uppercase tracking-[0.4em] text-accent md:text-base">
-            Street art without borders
-          </p>
-          <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            Chrome. Purple. Cyan. Drop after drop of oversized fits and metallic graphics — built in loving memory
-            of Ella Mary Broughton &amp; John Broughton.
-          </p>
-
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/shop" className="btn-primary-glow">
-              Shop the movement
+          <h2>STREET ART WITHOUT BORDERS</h2>
+          <p>ART. FAMILY. LEGACY. WORLDWIDE.</p>
+          <div className="buttons">
+            <Link href="/shop" className="btn">
+              SHOP THE MOVEMENT
             </Link>
-            <Link href="/legacy" className="btn-outline-glow">
-              Explore the legacy
+            <Link href="/legacy" className="btn ghost">
+              EXPLORE THE LEGACY
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[
-          { Icon: GlobeIcon, title: "Worldwide shipping", body: "To all countries" },
-          { Icon: RadarIcon, title: "Live order tracking", body: "Global visibility" },
-          { Icon: LockIcon, title: "Secure checkout", body: "100% protected" },
-          { Icon: HeartIcon, title: "Dedicated legacy", body: "Family comes first" },
-        ].map((f) => (
-          <div key={f.title} className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-5 text-center">
-            <span className="feature-icon">
-              <f.Icon className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-sm font-medium text-foreground">{f.title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{f.body}</p>
+      <section className="feature-strip">
+        {FEATURES.map((f) => (
+          <div key={f.title}>
+            <div className="feature-icon">
+              <f.Icon className="h-4 w-4" />
             </div>
+            <b>{f.title}</b>
+            <small>{f.body}</small>
           </div>
         ))}
       </section>
 
-      {featured.length > 0 && (
-        <section>
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="text-2xl">Featured drops</h2>
-            <Link href="/shop" className="text-sm text-accent hover:underline">
-              View all
-            </Link>
+      <section className="section">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">CURATED COLLECTION</p>
+            <h2>SHOP THE MOVEMENT</h2>
           </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <Link href="/shop" className="text-link">
+            VIEW ALL →
+          </Link>
+        </div>
+        {featured.length > 0 ? (
+          <div className="product-grid">
             {featured.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </div>
-        </section>
-      )}
-
-      {featured.length === 0 && (
-        <section className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
-          <p>
-            No products loaded yet — connect Supabase and run <code className="text-accent">supabase/schema.sql</code>{" "}
-            to seed the catalog.
+        ) : (
+          <p className="smallcaps">
+            No products loaded yet — connect Supabase and run supabase/schema.sql to seed the catalog.
           </p>
-        </section>
-      )}
-    </div>
+        )}
+      </section>
+
+      <section className="legacy-preview">
+        <div>
+          <p className="eyebrow">THE LEGACY</p>
+          <h2>
+            ELLA MARY
+            <br />
+            BROUGHTON
+            <br />
+            <span>&amp; JOHN BROUGHTON</span>
+          </h2>
+          <p>A LEGACY OF LOVE. A FUTURE OF HOPE.</p>
+          <Link href="/legacy" className="btn">
+            OUR STORY
+          </Link>
+        </div>
+        <Artwork mark="EMBZ" />
+      </section>
+
+      <section className="movement-preview">
+        <div>
+          <p className="eyebrow">ONE WORLD. BILLIONS OF CONNECTIONS.</p>
+          <h2>
+            THE $9.1 BILLION
+            <br />
+            MOVEMENT
+          </h2>
+          <p>195+ COUNTRIES · 1.2M+ SUPPORTERS · 50K+ ARTISTS</p>
+          <Link href="/movement" className="btn">
+            BE PART OF THE MOVEMENT
+          </Link>
+        </div>
+        <InteractiveGlobe points={nodes} routes={routes} small />
+      </section>
+    </main>
   );
 }

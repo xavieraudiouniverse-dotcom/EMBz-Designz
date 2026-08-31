@@ -37,34 +37,34 @@ export default async function AdminShipmentsPage() {
   });
 
   return (
-    <div className="space-y-8">
+    <div>
       <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-accent">Global operations</p>
-        <h1 className="font-display text-2xl tracking-wide">Shipments</h1>
+        <p className="eyebrow">GLOBAL OPERATIONS</p>
+        <h1>SHIPMENTS</h1>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="metrics" style={{ marginTop: 24 }}>
         <StatTile label="Active shipments" value={orders.length} />
         <StatTile label="In transit" value={inTransit} />
         <StatTile label="Out for delivery" value={outForDelivery} />
         <StatTile label="Exceptions" value={exceptions} tone={exceptions > 0 ? "critical" : "default"} />
       </div>
 
-      <div className="panel-metal edge-glow relative overflow-hidden rounded-2xl p-4">
-        <h2 className="mb-2 px-1 text-sm text-muted-foreground">Where shipments are right now</h2>
-        <div className="aspect-[2/1] w-full">
-          {points.length > 0 ? (
-            <InteractiveGlobe points={points} />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No active shipments to plot yet.
-            </div>
-          )}
-        </div>
+      <div className="admin-map" style={{ marginTop: 24, flexDirection: "column", padding: 16 }}>
+        <p className="smallcaps" style={{ alignSelf: "flex-start" }}>
+          WHERE SHIPMENTS ARE RIGHT NOW
+        </p>
+        {points.length > 0 ? (
+          <InteractiveGlobe points={points} />
+        ) : (
+          <p className="smallcaps">No active shipments to plot yet.</p>
+        )}
       </div>
 
-      <div>
-        <h2 className="mb-3 text-sm text-muted-foreground">Active orders</h2>
+      <div style={{ marginTop: 24 }}>
+        <p className="smallcaps" style={{ marginBottom: 12 }}>
+          ACTIVE ORDERS
+        </p>
         <OrdersTable orders={orders} />
       </div>
     </div>

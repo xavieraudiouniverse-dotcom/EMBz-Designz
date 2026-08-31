@@ -8,20 +8,20 @@ export const metadata = {
 const CHANNELS = [
   {
     Icon: MailIcon,
-    label: "Email",
+    label: "EMAIL",
     // Placeholder — swap for the real support inbox before launch.
     value: "support@embz-designz.store",
     href: "mailto:support@embz-designz.store",
   },
   {
     Icon: GlobeIcon,
-    label: "Shipping worldwide",
+    label: "SHIPPING WORLDWIDE",
     value: "195+ countries",
     href: "/shipping",
   },
   {
     Icon: ClockIcon,
-    label: "Support hours",
+    label: "SUPPORT HOURS",
     value: "24/7 — we're here",
     href: null,
   },
@@ -29,28 +29,26 @@ const CHANNELS = [
 
 export default function ContactPage() {
   return (
-    <div className="space-y-14">
-      <div className="text-center">
-        <p className="mb-2 text-xs uppercase tracking-[0.35em] text-accent">Reach the movement</p>
-        <h1 className="shimmer-text font-display text-4xl md:text-5xl">Get in touch</h1>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
-          Questions about an order, a collaboration, or the legacy fund — we read every message.
-        </p>
-      </div>
+    <div className="page" style={{ textAlign: "center" }}>
+      <p className="eyebrow">REACH THE MOVEMENT</p>
+      <h1 style={{ fontSize: 36, textShadow: "0 0 15px #7b20bd" }}>GET IN TOUCH</h1>
+      <p style={{ maxWidth: 520, margin: "12px auto 0", color: "#d8c9e2", fontSize: 13 }}>
+        Questions about an order, a collaboration, or the legacy fund — we read every message.
+      </p>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3" style={{ marginTop: 40 }}>
         {CHANNELS.map((c) => {
           const content = (
-            <div className="flex h-full flex-col items-center gap-2 rounded-xl border border-border bg-card p-6 text-center">
+            <div className="panel" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, height: "100%" }}>
               <span className="feature-icon">
                 <c.Icon className="h-5 w-5" />
               </span>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">{c.label}</p>
-              <p className="text-sm font-medium">{c.value}</p>
+              <p className="smallcaps">{c.label}</p>
+              <p style={{ fontSize: 13 }}>{c.value}</p>
             </div>
           );
           return c.href ? (
-            <a key={c.label} href={c.href} className="glow-hover rounded-xl">
+            <a key={c.label} href={c.href}>
               {content}
             </a>
           ) : (
@@ -59,14 +57,14 @@ export default function ContactPage() {
         })}
       </div>
 
-      <div className="panel-metal edge-glow rounded-2xl px-6 py-10 text-center">
-        <h2 className="font-display text-lg uppercase tracking-[0.2em] text-accent">Order support</h2>
-        <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+      <div className="panel" style={{ marginTop: 30, padding: 40 }}>
+        <h2 className="eyebrow">ORDER SUPPORT</h2>
+        <p style={{ maxWidth: 560, margin: "16px auto 0", color: "#aaa0af", lineHeight: 1.7, fontSize: 13 }}>
           For anything about an existing order — shipping status, sizing, a return — the fastest path is your{" "}
-          <a href="/track" className="text-accent hover:underline">
+          <a href="/track" className="text-link">
             order tracking page
           </a>
-          . For everything else, email us and we'll get back to you within one business day.
+          . For everything else, email us and we&apos;ll get back to you within one business day.
         </p>
       </div>
     </div>

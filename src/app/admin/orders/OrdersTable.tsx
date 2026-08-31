@@ -7,23 +7,28 @@ import { updateShipping, retryFulfillment } from "./actions";
 
 const STATUSES = ["pending", "processing", "shipped", "in_transit", "out_for_delivery", "delivered", "exception"];
 
-const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-slate-500/15 text-slate-300",
-  processing: "bg-amber-500/15 text-amber-300",
-  shipped: "bg-blue-500/15 text-blue-300",
-  in_transit: "bg-primary/15 text-primary",
-  out_for_delivery: "bg-accent/15 text-accent",
-  delivered: "bg-emerald-500/15 text-emerald-300",
-  exception: "bg-destructive/15 text-destructive",
+const ROW_COLS = "1fr 1.1fr .9fr .9fr .8fr .8fr .6fr";
+
+const STATUS_COLOR: Record<string, string> = {
+  pending: "#8c7c92",
+  processing: "#ffcf6b",
+  shipped: "#6bd0ff",
+  in_transit: "#c96aff",
+  out_for_delivery: "#3ee6e0",
+  delivered: "#62d99b",
+  exception: "#ff6b9c",
 };
 
 function StatusBadge({ status }: { status: string }) {
+  const color = STATUS_COLOR[status] ?? STATUS_COLOR.pending;
   return (
-    <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium capitalize ${STATUS_STYLES[status] ?? STATUS_STYLES.pending}`}>
+    <span className="status-badge" style={{ color }}>
       {status.replace(/_/g, " ")}
     </span>
   );
 }
+
+const inputStyle = { background: "#06030b", border: "1px solid #352043", color: "#fff", padding: "9px 12px", fontSize: 11, outline: "none" };
 
 export default function OrdersTable({ orders }: { orders: Order[] }) {
   const [search, setSearch] = useState("");
@@ -44,19 +49,15 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
   }, [orders, search, statusFilter]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search order, customer, country…"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm"
+          style={{ ...inputStyle, flex: 1, minWidth: 200 }}
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-border bg-card px-3 py-2 text-sm"
-        >
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={inputStyle}>
           <option value="all">All statuses</option>
           {STATUSES.map((s) => (
             <option key={s} value={s}>
@@ -66,100 +67,85 @@ export default function OrdersTable({ orders }: { orders: Order[] }) {
         </select>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead className="bg-card text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3">Order</th>
-              <th className="px-4 py-3">Customer</th>
-              <th className="px-4 py-3">Country</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Total</th>
-              <th className="px-4 py-3">Date</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((o) => (
-              <Fragment key={o.id}>
-                <tr className="border-t border-border hover:bg-card/60">
-                  <td className="px-4 py-3 font-mono text-xs text-accent">EMBZ-{o.id.slice(0, 8).toUpperCase()}</td>
-                  <td className="px-4 py-3">{o.customer_name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{o.country}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={o.shipping_status} />
-                  </td>
-                  <td className="px-4 py-3">{formatPrice(o.display_total, o.display_currency as any, 1)}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => setExpanded(expanded === o.id ? null : o.id)}
-                      className="text-xs text-accent hover:underline"
-                    >
-                      {expanded === o.id ? "Close" : "Manage"}
-                    </button>
-                  </td>
-                </tr>
-                {expanded === o.id && (
-                  <tr className="border-t border-border bg-card/40">
-                    <td colSpan={7} className="px-4 py-4">
-                      <form action={updateShipping} className="flex flex-wrap items-end gap-3">
-                        <input type="hidden" name="order_id" value={o.id} />
-                        <div>
-                          <label className="block text-xs text-muted-foreground">Status</label>
-                          <select name="shipping_status" defaultValue={o.shipping_status} className="rounded border border-border bg-background px-3 py-2 text-sm">
-                            {STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {s.replace(/_/g, " ")}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">Carrier</label>
-                          <input name="carrier" defaultValue={o.carrier ?? ""} placeholder="e.g. Australia Post" className="rounded border border-border bg-background px-3 py-2 text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">Tracking #</label>
-                          <input name="tracking_number" defaultValue={o.tracking_number ?? ""} className="rounded border border-border bg-background px-3 py-2 text-sm" />
-                        </div>
-                        <button className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">
-                          Update shipping
-                        </button>
-                      </form>
-                      {o.payment_status === "paid" && (
-                        <form action={retryFulfillment} className="mt-3">
-                          <input type="hidden" name="order_id" value={o.id} />
-                          <button className="rounded-full border border-accent px-5 py-2 text-xs font-semibold text-accent hover:bg-accent/10">
-                            Retry Merchize fulfillment
-                          </button>
-                        </form>
-                      )}
-                      <div className="mt-3 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
-                        <p>{o.customer_email}</p>
-                        <p>{o.phone}</p>
-                        <p>
-                          {o.address_line1}
-                          {o.address_line2 ? `, ${o.address_line2}` : ""}
-                        </p>
-                        <p>
-                          {o.city}, {o.postal_code}, {o.country}
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
+      <div className="table">
+        <div className="tr head" style={{ gridTemplateColumns: ROW_COLS }}>
+          <span>ORDER</span>
+          <span>CUSTOMER</span>
+          <span>COUNTRY</span>
+          <span>STATUS</span>
+          <span>TOTAL</span>
+          <span>DATE</span>
+          <span />
+        </div>
+        {filtered.map((o) => (
+          <Fragment key={o.id}>
+            <div className="tr" style={{ gridTemplateColumns: ROW_COLS, alignItems: "center" }}>
+              <span style={{ color: "#c96aff", fontFamily: "monospace" }}>EMBZ-{o.id.slice(0, 8).toUpperCase()}</span>
+              <span>{o.customer_name}</span>
+              <span style={{ color: "#8e8497" }}>{o.country}</span>
+              <span>
+                <StatusBadge status={o.shipping_status} />
+              </span>
+              <span>{formatPrice(o.display_total, o.display_currency as any, 1)}</span>
+              <span style={{ color: "#8e8497" }}>{new Date(o.created_at).toLocaleDateString()}</span>
+              <span style={{ textAlign: "right" }}>
+                <button onClick={() => setExpanded(expanded === o.id ? null : o.id)}>{expanded === o.id ? "CLOSE" : "MANAGE"}</button>
+              </span>
+            </div>
+            {expanded === o.id && (
+              <div style={{ borderBottom: "1px solid #241430", background: "rgba(12,6,18,.6)", padding: "18px 15px" }}>
+                <form action={updateShipping} style={{ display: "flex", flexWrap: "wrap", alignItems: "end", gap: 12 }}>
+                  <input type="hidden" name="order_id" value={o.id} />
+                  <div>
+                    <label className="smallcaps" style={{ marginBottom: 4 }}>
+                      Status
+                    </label>
+                    <select name="shipping_status" defaultValue={o.shipping_status} style={inputStyle}>
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s.replace(/_/g, " ")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="smallcaps" style={{ marginBottom: 4 }}>
+                      Carrier
+                    </label>
+                    <input name="carrier" defaultValue={o.carrier ?? ""} placeholder="e.g. Australia Post" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label className="smallcaps" style={{ marginBottom: 4 }}>
+                      Tracking #
+                    </label>
+                    <input name="tracking_number" defaultValue={o.tracking_number ?? ""} style={inputStyle} />
+                  </div>
+                  <button className="btn">UPDATE SHIPPING</button>
+                </form>
+                {o.payment_status === "paid" && (
+                  <form action={retryFulfillment} style={{ marginTop: 10 }}>
+                    <input type="hidden" name="order_id" value={o.id} />
+                    <button className="btn ghost">RETRY MERCHIZE FULFILLMENT</button>
+                  </form>
                 )}
-              </Fragment>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
-                  No orders match your search.
-                </td>
-              </tr>
+                <div className="grid gap-1 sm:grid-cols-2" style={{ marginTop: 12, fontSize: 11, color: "#8e8497" }}>
+                  <p>{o.customer_email}</p>
+                  <p>{o.phone}</p>
+                  <p>
+                    {o.address_line1}
+                    {o.address_line2 ? `, ${o.address_line2}` : ""}
+                  </p>
+                  <p>
+                    {o.city}, {o.postal_code}, {o.country}
+                  </p>
+                </div>
+              </div>
             )}
-          </tbody>
-        </table>
+          </Fragment>
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ padding: "40px 0", textAlign: "center", color: "#8e8497", fontSize: 12 }}>No orders match your search.</div>
+        )}
       </div>
     </div>
   );

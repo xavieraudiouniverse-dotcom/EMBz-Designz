@@ -5,10 +5,10 @@ import { TagIcon, GlobeIcon, RefreshIcon, LockIcon } from "@/components/Icons";
 import type { Product, Category } from "@/types/database";
 
 const TRUST_ROW = [
-  { Icon: TagIcon, title: "Premium quality", body: "Built to last" },
-  { Icon: GlobeIcon, title: "Global shipping", body: "To 195+ countries" },
-  { Icon: RefreshIcon, title: "Easy returns", body: "No stress" },
-  { Icon: LockIcon, title: "Secure payments", body: "100% safe" },
+  { Icon: TagIcon, title: "PREMIUM QUALITY", body: "BUILT TO LAST" },
+  { Icon: GlobeIcon, title: "GLOBAL SHIPPING", body: "TO 195+ COUNTRIES" },
+  { Icon: RefreshIcon, title: "EASY RETURNS", body: "NO STRESS" },
+  { Icon: LockIcon, title: "SECURE PAYMENTS", body: "100% SAFE" },
 ];
 
 export const revalidate = 0;
@@ -42,56 +42,43 @@ export default async function ShopPage({
   const filtered = activeSlug ? products.filter((p) => p.categories?.slug === activeSlug) : products;
 
   return (
-    <div id="collections" className="space-y-8 scroll-mt-24">
-      <div className="text-center">
-        <p className="mb-2 text-xs uppercase tracking-[0.35em] text-accent">The full catalog</p>
-        <h1 className="shimmer-text font-display text-4xl md:text-5xl">Shop the movement</h1>
+    <div id="collections" className="page scroll-mt-24">
+      <div className="page-title">
+        <p className="eyebrow">THE FULL CATALOG</p>
+        <h1>SHOP THE MOVEMENT</h1>
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <Link
-          href="/shop"
-          className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
-            !activeSlug
-              ? "border-primary bg-primary text-primary-foreground"
-              : "border-border text-muted-foreground hover:border-accent hover:text-accent"
-          }`}
-        >
-          All
+      <div className="filters">
+        <Link href="/shop" className={!activeSlug ? "active" : ""}>
+          ALL
         </Link>
         {categories.map((c) => (
-          <Link
-            key={c.id}
-            href={`/shop?category=${c.slug}#collections`}
-            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-wide transition ${
-              activeSlug === c.slug
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-border text-muted-foreground hover:border-accent hover:text-accent"
-            }`}
-          >
-            {c.name}
+          <Link key={c.id} href={`/shop?category=${c.slug}#collections`} className={activeSlug === c.slug ? "active" : ""}>
+            {c.name.toUpperCase()}
           </Link>
         ))}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">No products in this collection yet — check back soon.</p>
+        <p className="smallcaps" style={{ textAlign: "center", padding: "40px 0" }}>
+          No products in this collection yet — check back soon.
+        </p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div className="product-grid shop-grid">
           {filtered.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 border-t border-border pt-8 md:grid-cols-4">
+      <div className="feature-strip" style={{ marginTop: 60, borderInline: "1px solid #311548" }}>
         {TRUST_ROW.map((t) => (
-          <div key={t.title} className="flex flex-col items-center gap-2 text-center">
-            <span className="feature-icon">
-              <t.Icon className="h-5 w-5" />
-            </span>
-            <p className="text-xs font-medium uppercase tracking-wide">{t.title}</p>
-            <p className="text-[11px] text-muted-foreground">{t.body}</p>
+          <div key={t.title}>
+            <div className="feature-icon">
+              <t.Icon className="h-4 w-4" />
+            </div>
+            <b>{t.title}</b>
+            <small>{t.body}</small>
           </div>
         ))}
       </div>

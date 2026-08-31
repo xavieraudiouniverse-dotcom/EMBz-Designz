@@ -40,63 +40,58 @@ export default function AddToCartForm({ product }: { product: Product }) {
   }
 
   return (
-    <div className="mt-6 space-y-6">
-      <p className="text-2xl text-accent">{formatPrice(product.price, currency, rateToAud)}</p>
+    <>
+      <h3>{formatPrice(product.price, currency, rateToAud)}</h3>
 
-      <div>
-        <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Color — {color}</p>
-        <div className="flex gap-2">
+      <div style={{ margin: "24px 0" }}>
+        <p className="smallcaps">COLOR — {color.toUpperCase()}</p>
+        <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
           {COLORS.map((c) => (
             <button
               key={c.name}
               type="button"
               onClick={() => setColor(c.name)}
               aria-label={c.name}
-              className={`h-8 w-8 rounded-full border-2 transition ${
-                color === c.name ? "border-accent shadow-cyan" : "border-border"
-              }`}
-              style={{ backgroundColor: c.hex }}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                backgroundColor: c.hex,
+                border: color === c.name ? "2px solid #d975ff" : "1px solid #3a2050",
+                boxShadow: color === c.name ? "0 0 12px #a500ff" : "none",
+                padding: 0,
+                minHeight: 0,
+                cursor: "pointer",
+              }}
             />
           ))}
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Size — {size}</p>
-        <div className="flex flex-wrap gap-2">
+      <div style={{ margin: "24px 0" }}>
+        <p className="smallcaps">SIZE — {size}</p>
+        <select value={size} onChange={(e) => setSize(e.target.value)}>
           {SIZES.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSize(s)}
-              className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${
-                size === s
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-accent hover:text-accent"
-              }`}
-            >
+            <option key={s} value={s}>
               {s}
-            </button>
+            </option>
           ))}
-        </div>
+        </select>
       </div>
 
-      <div>
-        <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Quantity</p>
-        <div className="inline-flex items-center gap-3 rounded-lg border border-border px-3 py-1.5">
-          <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="text-lg text-muted-foreground hover:text-foreground">
-            −
-          </button>
-          <span className="w-6 text-center text-sm">{qty}</span>
-          <button type="button" onClick={() => setQty((q) => q + 1)} className="text-lg text-muted-foreground hover:text-foreground">
-            +
-          </button>
-        </div>
+      <div className="quantity">
+        <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="btn" style={{ minHeight: 30, padding: "0 14px" }}>
+          −
+        </button>
+        <span>{qty}</span>
+        <button type="button" onClick={() => setQty((q) => q + 1)} className="btn" style={{ minHeight: 30, padding: "0 14px" }}>
+          +
+        </button>
       </div>
 
-      <p className="text-xs text-muted-foreground">{product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}</p>
+      <p className="smallcaps">{product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}</p>
 
-      <div className="space-y-3">
+      <div style={{ display: "grid", gap: 10, marginTop: 20 }}>
         <button
           disabled={product.stock <= 0}
           onClick={() => {
@@ -104,9 +99,9 @@ export default function AddToCartForm({ product }: { product: Product }) {
             setAdded(true);
             setTimeout(() => setAdded(false), 1500);
           }}
-          className="sweep glow-hover w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+          className="btn full"
         >
-          {added ? "Added ✓" : "Add to cart"}
+          {added ? "ADDED ✓" : "ADD TO CART"}
         </button>
         <button
           disabled={product.stock <= 0}
@@ -114,11 +109,17 @@ export default function AddToCartForm({ product }: { product: Product }) {
             addToCart();
             router.push("/checkout");
           }}
-          className="w-full rounded-full border border-accent py-3 text-sm font-semibold text-accent transition hover:bg-accent/10 disabled:opacity-40"
+          className="btn ghost full"
         >
-          Buy it now
+          BUY IT NOW
         </button>
       </div>
-    </div>
+
+      <div className="perks">
+        <span>✦ Worldwide shipping, 195+ countries</span>
+        <span>✦ Secure checkout, 100% encrypted</span>
+        <span>✦ Proceeds support the legacy fund</span>
+      </div>
+    </>
   );
 }
