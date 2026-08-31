@@ -14,9 +14,11 @@ const LINKS = [
   { href: "/admin/products", label: "PRODUCTS", icon: "◈" },
   { href: "/admin/users", label: "CUSTOMERS", icon: "◉" },
   { href: "/admin/analytics", label: "ANALYTICS", icon: "◌" },
+  { href: "/admin/markets", label: "MARKET INTELLIGENCE", icon: "◈" },
   { href: "/admin/financials", label: "REPORTS", icon: "▥" },
   { href: "/admin/design-vault", label: "DESIGN VAULT", icon: "▤" },
   { href: "/admin/designer", label: "DESIGNER", icon: "✦" },
+  { href: "/admin/integrations", label: "INTEGRATIONS", icon: "⌘" },
   { href: "/admin/settings", label: "SETTINGS", icon: "⚙" },
 ];
 
