@@ -46,13 +46,15 @@ export default async function AdminFinancialsPage() {
   const recent = ordersList.slice(0, 10);
 
   return (
-    <div className="space-y-10">
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-accent">Money in, money out</p>
-        <h1 className="font-display text-2xl tracking-wide">Financials</h1>
+    <div>
+      <div className="cc-header">
+        <div>
+          <small>MONEY IN, MONEY OUT</small>
+          <h1>REPORTS</h1>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="cc-kpis">
         <StatTile label="Total revenue (paid)" value={formatPrice(totalRevenue, "AUD", 1)} />
         <StatTile label="Pending revenue" value={formatPrice(pendingRevenue, "AUD", 1)} tone="warning" />
         <StatTile label="Refunded" value={formatPrice(refundedAmount, "AUD", 1)} tone={refundedAmount > 0 ? "critical" : "default"} />
@@ -60,12 +62,12 @@ export default async function AdminFinancialsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-[1fr_1.4fr]">
-        <div className="panel-metal rounded-xl p-5">
+        <div className="cc-card">
           <h2 className="mb-4 text-sm text-muted-foreground">Revenue by currency</h2>
           <BarChart data={currencyData} color={CHART_PURPLE} emptyLabel="No paid orders yet" />
         </div>
 
-        <div className="panel-metal rounded-xl p-5">
+        <div className="cc-card">
           <h2 className="mb-4 text-sm text-muted-foreground">Recent transactions</h2>
           {recent.length === 0 ? (
             <p className="text-sm text-muted-foreground">No orders yet.</p>

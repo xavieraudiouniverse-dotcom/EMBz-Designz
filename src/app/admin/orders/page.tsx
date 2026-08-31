@@ -10,11 +10,19 @@ export default async function AdminOrdersPage() {
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <p className="eyebrow">ORDER MANAGEMENT</p>
-        <h1>ORDERS</h1>
+      <div className="cc-header">
+        <div>
+          <small>ORDER MANAGEMENT</small>
+          <h1>ORDERS &amp; LOGISTICS</h1>
+        </div>
       </div>
-      <OrdersTable orders={(orders as Order[] | null) ?? []} />
+      <div className="cc-card large-card">
+        <div className="card-title">
+          <b>ALL ORDERS</b>
+          <small>LIVE FROM SUPABASE</small>
+        </div>
+        <OrdersTable orders={(orders as Order[] | null) ?? []} />
+      </div>
     </div>
   );
 }

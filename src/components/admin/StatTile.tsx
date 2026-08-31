@@ -9,11 +9,12 @@ export default function StatTile({
   hint?: string;
   tone?: "default" | "warning" | "critical";
 }) {
+  const toneColor = tone === "critical" ? "#ff6b9c" : tone === "warning" ? "#f2bd5b" : "#5feab1";
   return (
-    <div className={`metric ${tone !== "default" ? `metric-tone-${tone}` : ""}`}>
+    <div className="cc-card kpi">
       <small>{label.toUpperCase()}</small>
-      <b>{value}</b>
-      {hint && <em style={{ color: "#8e829a" }}>{hint}</em>}
+      <strong>{value}</strong>
+      {hint && <em style={{ color: toneColor }}>{hint}</em>}
     </div>
   );
 }

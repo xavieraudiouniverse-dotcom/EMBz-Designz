@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Inter } from "next/font/google";
+import { Anton, Inter, Orbitron } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart";
 import { CurrencyProvider } from "@/lib/currency-context";
@@ -15,6 +15,8 @@ import { createClient } from "@/lib/supabase/server";
 // silently falling back to the browser's default sans-serif.
 const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-anton", display: "swap" });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+// The NEXUS command centre sets its KPI figures in Orbitron.
+const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron", display: "swap" });
 
 export const metadata: Metadata = {
   title: "EMBZ DESIGNZ",
@@ -36,7 +38,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" className={`dark ${anton.variable} ${inter.variable}`}>
+    <html lang="en" className={`dark ${anton.variable} ${inter.variable} ${orbitron.variable}`}>
       <body>
         <CurrencyProvider nzdRate={nzdRate}>
           <CartProvider>

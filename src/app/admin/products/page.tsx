@@ -15,7 +15,12 @@ export default async function AdminProductsPage() {
     <div className="space-y-10">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl">Products</h1>
+          <div className="cc-header">
+        <div>
+          <small>CATALOGUE</small>
+          <h1>PRODUCTS</h1>
+        </div>
+      </div>
           <Link href="/admin/designer" className="sweep glow-hover rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground">
             + Design a new product
           </Link>

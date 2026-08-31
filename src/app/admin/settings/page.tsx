@@ -46,14 +46,16 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="space-y-10">
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-accent">Command centre</p>
-        <h1 className="font-display text-2xl tracking-wide">Settings</h1>
+    <div>
+      <div className="cc-header">
+        <div>
+          <small>COMMAND CENTRE</small>
+          <h1>SETTINGS</h1>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="panel-metal rounded-xl p-6">
+        <div className="cc-card">
           <h2 className="text-sm text-muted-foreground">Admin account</h2>
           <p className="mt-3 text-xs uppercase tracking-wide text-muted-foreground">Signed in as</p>
           <p className="mt-1 text-sm">{email ?? "…"}</p>
@@ -83,7 +85,7 @@ export default function AdminSettingsPage() {
           </form>
         </div>
 
-        <div className="panel-metal rounded-xl p-6">
+        <div className="cc-card">
           <h2 className="text-sm text-muted-foreground">Store configuration</h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Fixed at the code/environment level — ask for these to be changed in a deploy rather than here.

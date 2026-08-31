@@ -3,31 +3,21 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import {
-  GridIcon,
-  PackageIcon,
-  TagIcon,
-  UsersIcon,
-  ImageIcon,
-  TrendingUpIcon,
-  TruckIcon,
-  DollarIcon,
-  SettingsIcon,
-  PencilIcon,
-  LogOutIcon,
-} from "@/components/Icons";
 
+// NEXUS command centre navigation. Icons and labels follow the NEXUS package;
+// each one is a real route in this app rather than a section of a single page,
+// so the data behind every screen stays server-rendered from Supabase.
 const LINKS = [
-  { href: "/admin", label: "Dashboard", Icon: GridIcon },
-  { href: "/admin/orders", label: "Orders", Icon: PackageIcon },
-  { href: "/admin/products", label: "Products", Icon: TagIcon },
-  { href: "/admin/users", label: "Customers", Icon: UsersIcon },
-  { href: "/admin/design-vault", label: "Design Vault", Icon: ImageIcon },
-  { href: "/admin/analytics", label: "Analytics", Icon: TrendingUpIcon },
-  { href: "/admin/shipments", label: "Shipments", Icon: TruckIcon },
-  { href: "/admin/financials", label: "Financials", Icon: DollarIcon },
-  { href: "/admin/settings", label: "Settings", Icon: SettingsIcon },
-  { href: "/admin/designer", label: "Designer", Icon: PencilIcon },
+  { href: "/admin", label: "OVERVIEW", icon: "⌂" },
+  { href: "/admin/orders", label: "ORDERS & LOGISTICS", icon: "▣" },
+  { href: "/admin/shipments", label: "SHIPMENTS", icon: "◇" },
+  { href: "/admin/products", label: "PRODUCTS", icon: "◈" },
+  { href: "/admin/users", label: "CUSTOMERS", icon: "◉" },
+  { href: "/admin/analytics", label: "ANALYTICS", icon: "◌" },
+  { href: "/admin/financials", label: "REPORTS", icon: "▥" },
+  { href: "/admin/design-vault", label: "DESIGN VAULT", icon: "▤" },
+  { href: "/admin/designer", label: "DESIGNER", icon: "✦" },
+  { href: "/admin/settings", label: "SETTINGS", icon: "⚙" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -35,8 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const supabase = createClient();
 
-  // The admin login screen owns its own full-bleed hero — it doesn't get the
-  // Command Centre sidebar chrome.
+  // The admin login screen owns its own full-bleed hero — no command centre chrome.
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
@@ -48,24 +37,42 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="admin-page">
-      <nav className="admin-side">
-        <b>EMBZ COMMAND</b>
-        {LINKS.map((l) => {
-          const active = pathname === l.href || (l.href !== "/admin" && pathname?.startsWith(l.href));
-          return (
-            <Link key={l.href} href={l.href} className={active ? "active" : ""}>
-              <l.Icon className="h-4 w-4 shrink-0" />
-              {l.label.toUpperCase()}
-            </Link>
-          );
-        })}
-        <a onClick={handleLogout} role="button">
-          <LogOutIcon className="h-4 w-4 shrink-0" />
-          LOGOUT
-        </a>
-      </nav>
-      <div className="admin-main">{children}</div>
+    <div className="command-centre">
+      <aside className="cc-sidebar">
+        <div className="cc-brand">
+          <span>EMBZ NEXUS</span>
+          <small>COMMAND CENTRE</small>
+        </div>
+
+        <Link href="/admin/designer" className="nexus-button">
+          <b>✦</b>
+          NEXUS DESIGNER
+        </Link>
+
+        <nav>
+          {LINKS.map((l) => {
+            const active = pathname === l.href || (l.href !== "/admin" && pathname?.startsWith(l.href));
+            return (
+              <Link key={l.href} href={l.href} className={active ? "active" : ""}>
+                <i>{l.icon}</i>
+                {l.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="cc-bottom">
+          <span>
+            <i />
+            SYSTEMS NOMINAL
+          </span>
+          <a onClick={handleLogout} role="button">
+            SIGN OUT
+          </a>
+        </div>
+      </aside>
+
+      <div className="cc-main">{children}</div>
     </div>
   );
 }

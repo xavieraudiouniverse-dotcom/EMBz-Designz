@@ -13,7 +13,12 @@ export default async function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl">Users</h1>
+      <div className="cc-header">
+        <div>
+          <small>IDENTITIES</small>
+          <h1>CUSTOMERS</h1>
+        </div>
+      </div>
       <div className="space-y-2">
         {(profiles as Profile[] | null)?.map((p) => (
           <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card p-4">

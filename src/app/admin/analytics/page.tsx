@@ -70,13 +70,15 @@ export default async function AdminAnalyticsPage() {
   const orderSeries = days.map((d) => ({ label: shortDate(d), value: ordersByDay.get(d) ?? 0 }));
 
   return (
-    <div className="space-y-10">
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-accent">Sales performance</p>
-        <h1 className="font-display text-2xl tracking-wide">Analytics</h1>
+    <div>
+      <div className="cc-header">
+        <div>
+          <small>SALES PERFORMANCE</small>
+          <h1>ANALYTICS</h1>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="cc-kpis">
         <StatTile label="Avg order value" value={formatPrice(avgOrderValue, "AUD", 1)} />
         <StatTile label="Items per order" value={avgItemsPerOrder.toFixed(1)} />
         <StatTile label="Items sold" value={itemsSold} />
@@ -84,11 +86,11 @@ export default async function AdminAnalyticsPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="panel-metal rounded-xl p-5">
+        <div className="cc-card">
           <h2 className="mb-4 text-sm text-muted-foreground">Orders — last 30 days</h2>
           <LineChart data={orderSeries} color={CHART_TEAL} formatValue={(v) => `${v} order${v === 1 ? "" : "s"}`} />
         </div>
-        <div className="panel-metal rounded-xl p-5">
+        <div className="cc-card">
           <h2 className="mb-4 text-sm text-muted-foreground">Revenue by category</h2>
           <BarChart data={categoryData} color={CHART_PURPLE} emptyLabel="No sales yet" />
         </div>

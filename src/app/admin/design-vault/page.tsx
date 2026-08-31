@@ -119,10 +119,12 @@ export default function DesignVaultPage() {
   const visible = filter === "all" ? files : files.filter((f) => f.collection === filter);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-xs uppercase tracking-[0.25em] text-accent">All collections</p>
-        <h1 className="font-display text-2xl tracking-wide">Design vault</h1>
+    <div>
+      <div className="cc-header">
+        <div>
+          <small>ALL COLLECTIONS</small>
+          <h1>DESIGN VAULT</h1>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
@@ -167,7 +169,7 @@ export default function DesignVaultPage() {
           )}
         </div>
 
-        <div className="panel-metal h-fit space-y-5 rounded-xl p-5">
+        <div className="cc-card">
           <div>
             <h2 className="mb-2 text-sm text-muted-foreground">Upload new design</h2>
             <label className="block cursor-pointer rounded-lg border border-dashed border-primary/40 bg-primary/5 p-6 text-center text-xs text-muted-foreground hover:border-accent">

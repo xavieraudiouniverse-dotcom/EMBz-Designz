@@ -38,33 +38,34 @@ export default async function AdminShipmentsPage() {
 
   return (
     <div>
-      <div>
-        <p className="eyebrow">GLOBAL OPERATIONS</p>
-        <h1>SHIPMENTS</h1>
+      <div className="cc-header">
+        <div>
+          <small>GLOBAL OPERATIONS</small>
+          <h1>SHIPMENTS</h1>
+        </div>
       </div>
 
-      <div className="metrics" style={{ marginTop: 24 }}>
+      <div className="cc-kpis" style={{ marginTop: 24 }}>
         <StatTile label="Active shipments" value={orders.length} />
         <StatTile label="In transit" value={inTransit} />
         <StatTile label="Out for delivery" value={outForDelivery} />
         <StatTile label="Exceptions" value={exceptions} tone={exceptions > 0 ? "critical" : "default"} />
       </div>
 
-      <div className="admin-map" style={{ marginTop: 24, flexDirection: "column", padding: 16 }}>
-        <p className="smallcaps" style={{ alignSelf: "flex-start" }}>
-          WHERE SHIPMENTS ARE RIGHT NOW
-        </p>
+      <div className="cc-card" style={{ marginTop: 12 }}>
+        <div className="card-title"><b>WHERE SHIPMENTS ARE RIGHT NOW</b><small>LIVE</small></div>
         {points.length > 0 ? (
           <InteractiveGlobe points={points} />
         ) : (
-          <p className="smallcaps">No active shipments to plot yet.</p>
+          <div className="empty-live"><div>◇</div><b>NO ACTIVE SHIPMENTS</b><p>Destinations appear here once orders are in fulfilment.</p></div>
         )}
       </div>
 
-      <div style={{ marginTop: 24 }}>
-        <p className="smallcaps" style={{ marginBottom: 12 }}>
-          ACTIVE ORDERS
-        </p>
+      <div className="cc-card large-card" style={{ marginTop: 12 }}>
+        <div className="card-title">
+          <b>ACTIVE ORDERS</b>
+          <small>IN FULFILMENT</small>
+        </div>
         <OrdersTable orders={orders} />
       </div>
     </div>
