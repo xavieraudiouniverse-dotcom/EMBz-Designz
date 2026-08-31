@@ -62,8 +62,11 @@ export async function updateSession(request: NextRequest) {
       .maybeSingle();
 
     if (!roleRow) {
+      // Signed in, but no admin role yet — send to the one-time bootstrap
+      // claim page instead of silently bouncing to the homepage (which used
+      // to look exactly like "there's no admin panel at all").
       const url = request.nextUrl.clone();
-      url.pathname = "/";
+      url.pathname = "/admin/bootstrap";
       return NextResponse.redirect(url);
     }
   }
