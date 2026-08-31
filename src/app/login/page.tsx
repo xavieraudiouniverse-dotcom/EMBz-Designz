@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import GoogleAuthButton from "@/components/GoogleAuthButton";
 
 function LoginForm() {
   const router = useRouter();
@@ -14,6 +15,10 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const nextPath = params.get("next") || "/account";
+  // Google sends failures back here as ?error=... via /auth/callback.
+  const oauthError = params.get("error");
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -21,7 +26,7 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return setError(error.message);
-    router.push(params.get("next") || "/account");
+    router.push(nextPath);
     router.refresh();
   }
 
@@ -30,6 +35,7 @@ function LoginForm() {
       <div className="auth-box">
         <p className="eyebrow">WELCOME BACK</p>
         <h1 style={{ fontSize: 26, marginTop: 8 }}>SIGN IN</h1>
+        {oauthError && <p style={{ color: "#ff6b9c", fontSize: 12, marginTop: 12 }}>{oauthError}</p>}
         <form onSubmit={handleSubmit}>
           <input type="email" required placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
           <input
@@ -44,7 +50,13 @@ function LoginForm() {
             {loading ? "SIGNING IN…" : "SIGN IN"}
           </button>
         </form>
-        <p className="smallcaps">
+
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+        <GoogleAuthButton next={nextPath} />
+
+        <p className="smallcaps" style={{ marginTop: 20 }}>
           No account?{" "}
           <Link href="/signup" style={{ color: "#c65cff" }}>
             Sign up
